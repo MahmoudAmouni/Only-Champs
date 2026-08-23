@@ -204,7 +204,7 @@ only-champs/
 │   └── utils.ts
 ├── supabase/
 │   ├── migrations/             # numbered SQL, applied in order
-│   └── seed.sql
+│   └── seed.ts                 # run with `npx tsx supabase/seed.ts` — see 02-BACKEND.md §7
 ├── types/
 │   └── database.ts             # generated from the schema — never hand-edited
 └── docs/

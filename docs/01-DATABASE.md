@@ -226,6 +226,11 @@ create table subscriptions (
 create index subs_client_idx on subscriptions(client_id);
 create index subs_coach_active_idx on subscriptions(coach_id)
   where status in ('active','trialing');
+
+create trigger t_tiers_updated before update on tiers
+  for each row execute function touch_updated_at();
+create trigger t_subscriptions_updated before update on subscriptions
+  for each row execute function touch_updated_at();
 ```
 
 `on delete restrict` for `tier_id` is deliberate: deleting a tier that people are
@@ -333,6 +338,9 @@ create table posts (
 
 create index posts_feed_idx on posts(coach_id, published_at desc)
   where published_at is not null;
+
+create trigger t_posts_updated before update on posts
+  for each row execute function touch_updated_at();
 ```
 
 `media_path` stores the **storage object path**, never a URL. URLs are minted as
@@ -408,6 +416,9 @@ create table programs (
   constraint template_xor_assigned
     check ((is_template and client_id is null) or (not is_template))
 );
+
+create trigger t_programs_updated before update on programs
+  for each row execute function touch_updated_at();
 
 create table program_days (
   id          uuid primary key default gen_random_uuid(),
