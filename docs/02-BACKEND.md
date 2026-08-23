@@ -35,7 +35,7 @@ so read the table before writing any of them.
 |---|---|---|---|
 | `lib/supabase/client.ts` | Browser | anon + user JWT | Enforced |
 | `lib/supabase/server.ts` | Server components, actions | anon + user JWT | Enforced |
-| `lib/supabase/middleware.ts` | Edge middleware | anon + user JWT | Enforced |
+| `proxy.ts` (repo root) | Proxy — runs on every request | anon + user JWT | Enforced |
 | `lib/supabase/admin.ts` | Webhook + seed **only** | service role | **Bypassed** |
 
 ### `lib/supabase/client.ts`
@@ -104,16 +104,22 @@ export const supabaseAdmin = createClient<Database>(
 
 Keep that comment. It is the guard rail.
 
-### `middleware.ts` (repo root)
+### `proxy.ts` (repo root)
 
-Supabase access tokens expire in one hour. Middleware refreshes them on every request;
+> **Naming note.** This project runs on Next.js 16, which renamed `middleware.ts` to
+> `proxy.ts` (same mechanism, same execution model — file and export name only). If
+> you're on Next 15 or earlier, name this file `middleware.ts` and export
+> `middleware` instead of `proxy`. Check `node_modules/next/package.json` if unsure
+> which convention your installed version expects.
+
+Supabase access tokens expire in one hour. Proxy refreshes them on every request;
 without it, users are silently logged out mid-session.
 
 ```ts
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request })
 
   const supabase = createServerClient(
