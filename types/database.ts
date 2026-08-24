@@ -3,6 +3,12 @@
  * `supabase gen types typescript --linked` produces. This exists so code
  * can be written and type-checked before a Supabase project is linked.
  *
+ * The `Relationships` array on each table is not cosmetic — supabase-js
+ * uses it to type joined `.select("*, other_table(*)")` queries. Leave it
+ * empty and every embedded select resolves to a `SelectQueryError` instead
+ * of a real type. Keep it in sync with the actual foreign keys in
+ * supabase/migrations/*.sql.
+ *
  * Once a project exists and the migrations are pushed, regenerate for
  * real and diff against this file — a mismatch means either this file or
  * a migration drifted. After that, treat the generated file as
@@ -86,7 +92,15 @@ export type Database = {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["coaches"]["Insert"]>;
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "coaches_id_fkey";
+            columns: ["id"];
+            isOneToOne: true;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       tiers: {
         Row: {
@@ -120,7 +134,15 @@ export type Database = {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["tiers"]["Insert"]>;
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "tiers_coach_id_fkey";
+            columns: ["coach_id"];
+            isOneToOne: false;
+            referencedRelation: "coaches";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       subscriptions: {
         Row: {
@@ -150,7 +172,29 @@ export type Database = {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["subscriptions"]["Insert"]>;
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "subscriptions_coach_id_fkey";
+            columns: ["coach_id"];
+            isOneToOne: false;
+            referencedRelation: "coaches";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "subscriptions_tier_id_fkey";
+            columns: ["tier_id"];
+            isOneToOne: false;
+            referencedRelation: "tiers";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       posts: {
         Row: {
@@ -182,7 +226,15 @@ export type Database = {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["posts"]["Insert"]>;
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "posts_coach_id_fkey";
+            columns: ["coach_id"];
+            isOneToOne: false;
+            referencedRelation: "coaches";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       exercises: {
         Row: {
@@ -206,7 +258,15 @@ export type Database = {
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["exercises"]["Insert"]>;
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "exercises_coach_id_fkey";
+            columns: ["coach_id"];
+            isOneToOne: false;
+            referencedRelation: "coaches";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       programs: {
         Row: {
@@ -234,7 +294,22 @@ export type Database = {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["programs"]["Insert"]>;
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "programs_coach_id_fkey";
+            columns: ["coach_id"];
+            isOneToOne: false;
+            referencedRelation: "coaches";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "programs_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       program_days: {
         Row: {
@@ -254,7 +329,15 @@ export type Database = {
           notes?: string | null;
         };
         Update: Partial<Database["public"]["Tables"]["program_days"]["Insert"]>;
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "program_days_program_id_fkey";
+            columns: ["program_id"];
+            isOneToOne: false;
+            referencedRelation: "programs";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       program_exercises: {
         Row: {
@@ -282,7 +365,22 @@ export type Database = {
         Update: Partial<
           Database["public"]["Tables"]["program_exercises"]["Insert"]
         >;
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "program_exercises_program_day_id_fkey";
+            columns: ["program_day_id"];
+            isOneToOne: false;
+            referencedRelation: "program_days";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "program_exercises_exercise_id_fkey";
+            columns: ["exercise_id"];
+            isOneToOne: false;
+            referencedRelation: "exercises";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       workout_logs: {
         Row: {
@@ -304,7 +402,22 @@ export type Database = {
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["workout_logs"]["Insert"]>;
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "workout_logs_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "workout_logs_program_day_id_fkey";
+            columns: ["program_day_id"];
+            isOneToOne: false;
+            referencedRelation: "program_days";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       set_logs: {
         Row: {
@@ -330,7 +443,29 @@ export type Database = {
           completed?: boolean;
         };
         Update: Partial<Database["public"]["Tables"]["set_logs"]["Insert"]>;
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "set_logs_workout_log_id_fkey";
+            columns: ["workout_log_id"];
+            isOneToOne: false;
+            referencedRelation: "workout_logs";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "set_logs_program_exercise_id_fkey";
+            columns: ["program_exercise_id"];
+            isOneToOne: false;
+            referencedRelation: "program_exercises";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "set_logs_exercise_id_fkey";
+            columns: ["exercise_id"];
+            isOneToOne: false;
+            referencedRelation: "exercises";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       check_ins: {
         Row: {
@@ -364,7 +499,22 @@ export type Database = {
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["check_ins"]["Insert"]>;
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "check_ins_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "check_ins_coach_id_fkey";
+            columns: ["coach_id"];
+            isOneToOne: false;
+            referencedRelation: "coaches";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       conversations: {
         Row: {
@@ -388,7 +538,22 @@ export type Database = {
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["conversations"]["Insert"]>;
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "conversations_coach_id_fkey";
+            columns: ["coach_id"];
+            isOneToOne: false;
+            referencedRelation: "coaches";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "conversations_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       messages: {
         Row: {
@@ -408,7 +573,22 @@ export type Database = {
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["messages"]["Insert"]>;
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey";
+            columns: ["conversation_id"];
+            isOneToOne: false;
+            referencedRelation: "conversations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey";
+            columns: ["sender_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
       };
     };
     Views: {
@@ -424,7 +604,15 @@ export type Database = {
           published_at: string | null;
           is_unlocked: boolean;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "posts_coach_id_fkey";
+            columns: ["coach_id"];
+            isOneToOne: false;
+            referencedRelation: "coaches";
+            referencedColumns: ["id"];
+          },
+        ];
       };
     };
     Functions: {
