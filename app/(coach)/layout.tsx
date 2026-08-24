@@ -32,7 +32,7 @@ export default async function CoachLayout({
       </aside>
 
       <div className="flex flex-1 flex-col lg:pl-60">
-        <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-border bg-background px-4 lg:px-8">
+        <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-border/60 bg-background/80 px-4 backdrop-blur-xl lg:px-8">
           <div className="flex items-center gap-2">
             <MobileNav />
             <span className="text-sm font-medium text-muted-foreground lg:hidden">
@@ -45,7 +45,7 @@ export default async function CoachLayout({
           />
         </header>
 
-        <main className="mx-auto w-full max-w-[1280px] flex-1 px-4 py-8 lg:px-8">
+        <main className="animate-fade-up mx-auto w-full max-w-[1280px] flex-1 px-4 py-8 lg:px-8">
           {children}
         </main>
       </div>

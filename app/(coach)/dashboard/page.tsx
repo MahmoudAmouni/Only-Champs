@@ -44,8 +44,9 @@ export default async function DashboardPage() {
         Dashboard
       </h1>
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="stagger grid grid-cols-2 gap-4 sm:grid-cols-4">
         <StatTile
+          accent
           label="Monthly revenue"
           value={formatCents(stats.mrrCents)}
           delta={{ value: `${stats.newThisMonth} new this month`, direction: "up" }}

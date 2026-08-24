@@ -16,7 +16,7 @@ export default async function ClientLayout({
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[480px] flex-col border-x border-border bg-background">
-      <header className="flex h-14 items-center justify-between border-b border-border px-4">
+      <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-border/60 bg-background/85 px-4 backdrop-blur-xl">
         <span className="font-display text-base font-bold tracking-[-0.01em] text-foreground">
           OnlyChamps
         </span>
@@ -26,7 +26,9 @@ export default async function ClientLayout({
         />
       </header>
 
-      <main className="flex-1 overflow-y-auto px-4 py-6">{children}</main>
+      <main className="animate-fade-up scrollbar-thin flex-1 overflow-y-auto px-4 py-6">
+        {children}
+      </main>
 
       <TabBar />
     </div>

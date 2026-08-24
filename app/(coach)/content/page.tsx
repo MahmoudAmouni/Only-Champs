@@ -39,7 +39,7 @@ export default async function ContentPage() {
         </Button>}
         />
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="stagger grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {posts.map((post) => (
             <Card key={post.id} className="overflow-hidden p-0">
               <div className="flex h-32 items-center justify-center bg-muted">
