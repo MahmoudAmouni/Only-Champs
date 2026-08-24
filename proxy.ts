@@ -48,6 +48,7 @@ export async function proxy(request: NextRequest) {
     "/chat",
     "/profile",
     "/onboarding",
+    "/discover",
   ].some((p) => path.startsWith(p));
 
   if (!user && isProtected) {
