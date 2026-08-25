@@ -226,6 +226,11 @@ create table subscriptions (
 create index subs_client_idx on subscriptions(client_id);
 create index subs_coach_active_idx on subscriptions(coach_id)
   where status in ('active','trialing');
+
+create trigger t_tiers_updated before update on tiers
+  for each row execute function touch_updated_at();
+create trigger t_subscriptions_updated before update on subscriptions
+  for each row execute function touch_updated_at();
 ```
 
 `on delete restrict` for `tier_id` is deliberate: deleting a tier that people are
@@ -333,6 +338,9 @@ create table posts (
 
 create index posts_feed_idx on posts(coach_id, published_at desc)
   where published_at is not null;
+
+create trigger t_posts_updated before update on posts
+  for each row execute function touch_updated_at();
 ```
 
 `media_path` stores the **storage object path**, never a URL. URLs are minted as
@@ -408,6 +416,9 @@ create table programs (
   constraint template_xor_assigned
     check ((is_template and client_id is null) or (not is_template))
 );
+
+create trigger t_programs_updated before update on programs
+  for each row execute function touch_updated_at();
 
 create table program_days (
   id          uuid primary key default gen_random_uuid(),
@@ -845,3 +856,52 @@ supabase gen types typescript --linked > types/database.ts
 
 Re-run after every migration. `types/database.ts` is generated output — never edit it
 by hand, and re-generate rather than patching when it drifts.
+
+> **`--db-url` needs Docker.** `supabase gen types typescript --db-url <connection
+> string>` (used when the CLI isn't linked to the project — see §14) spins up a local
+> container to introspect the schema, and fails outright without Docker running. If
+> Docker isn't available, hand-maintain `types/database.ts` against the migrations
+> instead — tedious but mechanical, and worth a careful diff against the real
+> generated file once `supabase link` becomes available.
+
+## 14. Applying migrations without the Supabase CLI login
+
+`supabase link` (needed for `supabase db push`) requires either `supabase login` or a
+Personal Access Token — both grant account-wide access across every project on the
+account, not just this one. If that's more than you want to hand over for a one-time
+schema push, connect directly to Postgres instead and run the migration files as
+plain SQL. `scripts/run-migrations.mjs` in this repo does exactly that: it reads
+`DATABASE_URL`, applies every file in `supabase/migrations/` in order inside a single
+transaction, and rolls back the whole batch on any failure.
+
+Two connection gotchas that cost real time working this out for the first time:
+
+**Direct connections (`db.<ref>.supabase.co`) are IPv6-only by default.** Newer
+Supabase projects don't provision an IPv4 address for the direct host unless you pay
+for the add-on. On a network without IPv6 routing (common — check with
+`nslookup db.<ref>.supabase.co`; if you only get an AAAA record and no route, you're
+affected), this fails as a plain DNS/connection error, not an auth error, which makes
+it look unrelated to the real cause. **Use the Session pooler connection string
+instead** — Supabase dashboard → Project Settings → Database → Connection string
+(the full page, not the "Connect" quick-start modal, which only shows the direct
+option) → **Connection pooling** section → **Session** mode, port `5432`. It resolves
+over IPv4 and works identically for this purpose. (The Transaction pooler on `6543`
+also works for a one-off script like this, since it never uses prepared statements
+across queries — but Session mode is the one Supabase itself recommends for
+migrations.)
+
+**Percent-encode special characters in the database password.** A password containing
+`$`, `@`, `:`, `/`, or similar breaks URI parsing silently or produces a misleading
+auth error. Supabase's own connection-string panel warns about this — encode before
+using, e.g. `$` → `%24`.
+
+If you hit `(EAUTHQUERY) auth_query secret check timed out` or
+`authentication query failed: connection to database not available`, that's the
+pooler itself failing to complete its internal auth check against Postgres — not
+necessarily a wrong password. It's been observed clearing up after resetting the
+database password (Project Settings → Database → **Reset database password**), which
+appears to also refresh the pooler's cached credentials. A subsequent
+`password authentication failed for user "postgres"` (Postgres error code `28P01`)
+is a different, cleaner signal: the pooler reached Postgres fine, and the password
+itself is simply wrong — re-copy it fresh rather than reusing a value from earlier in
+the session.

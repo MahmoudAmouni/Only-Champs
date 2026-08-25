@@ -197,14 +197,18 @@ only-champs/
 │   ├── client/
 │   └── shared/
 ├── lib/
-│   ├── supabase/               # server.ts, client.ts, middleware.ts, admin.ts
+│   ├── supabase/               # server.ts, client.ts, admin.ts
 │   ├── stripe/
 │   ├── actions/                # server actions, grouped by domain
 │   ├── queries/                # typed read helpers
 │   └── utils.ts
+├── proxy.ts                    # session refresh + route protection — see 02-BACKEND.md §2
+├── scripts/
+│   └── run-migrations.mjs      # applies supabase/migrations/*.sql via DATABASE_URL,
+│                                # no CLI login needed — see 01-DATABASE.md §14
 ├── supabase/
 │   ├── migrations/             # numbered SQL, applied in order
-│   └── seed.sql
+│   └── seed.ts                 # run with `npx tsx supabase/seed.ts` — see 02-BACKEND.md §7
 ├── types/
 │   └── database.ts             # generated from the schema — never hand-edited
 └── docs/

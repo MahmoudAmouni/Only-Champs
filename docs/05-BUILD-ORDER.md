@@ -42,8 +42,11 @@ before it, and the two most common ways this project fails are:
 ## Phase 1 — Database · ~4 hours
 
 - [ ] Write migrations `00001` through `00009` from `01-DATABASE.md`
-- [ ] `supabase db push`
-- [ ] Generate types: `supabase gen types typescript --linked > types/database.ts`
+- [ ] `supabase db push` — or, if you don't want to grant the CLI account-wide access
+      via `supabase login`, run `node scripts/run-migrations.mjs` against
+      `DATABASE_URL` instead (see `01-DATABASE.md §14` for the connection gotchas)
+- [ ] Generate types: `supabase gen types typescript --linked > types/database.ts` —
+      needs Docker if using `--db-url` instead of `--linked`; see `01-DATABASE.md §13`
 - [ ] **Run the policy tests in `01-DATABASE.md §12`** for all five personas
 - [ ] Write the four Supabase client files
 

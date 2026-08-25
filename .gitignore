@@ -23,6 +23,7 @@
 
 # supabase
 .supabase/
+supabase/.temp/
 
 # vercel
 .vercel
