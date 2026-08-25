@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" width="1200" height="300" role="img" aria-label="OnlyChamps">
+  <rect width="1200" height="300" rx="20" fill="#0A0E13"/>
+
+  <g opacity="0.5">
+    <line x1="0" y1="75" x2="1200" y2="75" stroke="#1C2530" stroke-width="1"/>
+    <line x1="0" y1="150" x2="1200" y2="150" stroke="#1C2530" stroke-width="1"/>
+    <line x1="0" y1="225" x2="1200" y2="225" stroke="#1C2530" stroke-width="1"/>
+    <line x1="300" y1="0" x2="300" y2="300" stroke="#1C2530" stroke-width="1"/>
+    <line x1="600" y1="0" x2="600" y2="300" stroke="#1C2530" stroke-width="1"/>
+    <line x1="900" y1="0" x2="900" y2="300" stroke="#1C2530" stroke-width="1"/>
+  </g>
+
+  <g transform="translate(352 92) scale(1.375)">
+    <path d="M16 22 L32 11 L48 22" stroke="#C2F03A" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <path d="M16 37 L32 26 L48 37" stroke="#F0F4F8" stroke-opacity="0.65" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <path d="M16 52 L32 41 L48 52" stroke="#F0F4F8" stroke-opacity="0.3" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </g>
+
+  <text x="462" y="158" fill="#F0F4F8" font-family="Segoe UI, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="62" font-weight="700" letter-spacing="-2">OnlyChamps</text>
+
+  <text x="600" y="212" text-anchor="middle" fill="#8CA0B8" font-family="Segoe UI, Helvetica Neue, Helvetica, Arial, sans-serif" font-size="21">A subscription platform for online fitness coaches</text>
+
+  <g transform="translate(469 244)">
+    <rect x="0" y="0" width="70" height="6" rx="3" fill="#8CA0B8"/>
+    <rect x="82" y="0" width="70" height="6" rx="3" fill="#45C8F0"/>
+    <rect x="164" y="0" width="70" height="6" rx="3" fill="#C2F03A"/>
+  </g>
+</svg>
