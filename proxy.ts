@@ -48,8 +48,12 @@ export async function proxy(request: NextRequest) {
     "/chat",
     "/profile",
     "/onboarding",
-    "/discover",
   ].some((p) => path.startsWith(p));
+
+  // /discover and /c/[handle] are deliberately public: browsing coaches and
+  // reading a storefront is the top of the funnel, and putting a login wall
+  // in front of it costs most of the visitors it would convert. Both render
+  // locked previews rather than gated content, so there is nothing to leak.
 
   if (!user && isProtected) {
     const url = request.nextUrl.clone();

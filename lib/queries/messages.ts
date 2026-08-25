@@ -24,16 +24,25 @@ export async function getConversationMessages(conversationId: string) {
  * Client's own thread with their coach — direct if they hold level 3,
  * group if level 2. Returns null (not an error) for level 1, so the
  * page can render the upsell card instead of a dead end.
+ *
+ * A client can subscribe to more than one coach (the feed has a switcher
+ * for exactly that), so this deliberately does not assume a single row —
+ * maybeSingle() here would throw for anyone with two subscriptions. Chat
+ * has no coach switcher yet, so it resolves to the highest tier held,
+ * which is the thread with the most access behind it.
  */
 export async function getClientConversation(clientId: string) {
   const supabase = await createClient();
 
-  const { data: sub } = await supabase
+  const { data: subs } = await supabase
     .from("subscriptions")
     .select("coach_id, tiers(level)")
     .eq("client_id", clientId)
-    .in("status", ["active", "trialing"])
-    .maybeSingle();
+    .in("status", ["active", "trialing"]);
+
+  const sub = (subs ?? [])
+    .filter((s) => s.tiers)
+    .sort((a, b) => b.tiers!.level - a.tiers!.level)[0];
 
   if (!sub?.tiers) return { conversation: null, tierLevel: 0 as const, coachId: null };
   const tierLevel = sub.tiers.level;

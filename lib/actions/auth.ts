@@ -50,14 +50,30 @@ export async function signIn(_prev: ActionState, formData: FormData): Promise<Ac
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword(parsed.data);
+  const { data: auth, error } = await supabase.auth.signInWithPassword(parsed.data);
 
   if (error) return { error: "Incorrect email or password." };
 
   revalidatePath("/", "layout");
 
+  // An explicit ?next= wins — it's where the route guard bounced them from.
   const next = formData.get("next");
-  redirect(typeof next === "string" && next.startsWith("/") ? next : "/feed");
+  if (typeof next === "string" && next.startsWith("/")) redirect(next);
+
+  // Otherwise route by role. Sending everyone to /feed put coaches in the
+  // client shell, looking at an empty subscription list — every coach signing
+  // in landed on "No subscriptions yet" instead of their own dashboard.
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, coaches(id)")
+    .eq("id", auth.user.id)
+    .maybeSingle();
+
+  if (profile?.role === "coach") {
+    redirect(profile.coaches ? "/dashboard" : "/onboarding/coach");
+  }
+
+  redirect("/feed");
 }
 
 export async function signOut() {

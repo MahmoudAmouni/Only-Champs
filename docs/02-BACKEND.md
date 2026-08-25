@@ -638,25 +638,43 @@ receives nothing. The filter is a performance optimisation, not the security bou
 `supabase/seed.ts`, run with `npx tsx supabase/seed.ts`. This is the second and last
 legitimate use of the service role key.
 
+Everything is generated from the single `COACHES` array at the top of the file, so
+adding a coach means adding one object, not editing eight functions.
+
 It must produce:
 
-- 1 coach — handle `marcus`, published, Stripe onboarding marked complete
-- 3 tiers — levels 1/2/3 at $19 / $59 / $249
-- 8 clients — 2 at level 1, 3 at level 2, 3 at level 3, with real-looking names and
-  avatars from a placeholder service
-- 12 posts across all three tier levels, mixed media types
-- 30 exercises covering the main lifts
-- 2 programs, one assigned to each level-3 client
-- **90 days of weight logs per client**, trending gently downward with day-to-day
-  noise — a straight line looks synthetic and a flat line looks broken
-- 12 weeks of check-ins with varied adherence, including two clients whose adherence
-  drops off so the "at risk" panel has something real to show
-- 4 conversations with 30–60 messages each, timestamps spread across weeks
+- **6 published coaches**, each with their own handle, headline, bio, specialties,
+  cover photography and a distinct pricing ladder — a marketplace with one seller in
+  it reads as a prototype, and `/discover` needs something to browse
+- 3 tiers per coach at levels 1/2/3, priced differently per coach so the ladder
+  reads as a coach-level decision rather than a platform constant
+- **27 clients** spread across the six rosters, with real-looking names and avatars
+- 12–16 posts per coach across all three tier levels, mixed media types
+- 60 exercises covering barbell, bodyweight, kettlebell and conditioning work, so
+  every coaching style has movements to program with
+- **One assigned program per client, plus 2 unassigned templates per coach.** Level 1
+  gets a shared starter block, level 2 the group block, level 3 an individually named
+  one. Every client having a plan keeps `/today` and `/progress` populated for any
+  demo account; what level 3 buys is the coach's attention, not the existence of a plan
+- **Workout logs with weights that progress session over session** from a plausible
+  starting load. Random per-set weights read as noise on the progress chart and defeat
+  the last-session prefill in `/today`, which exists to show what you lifted last time
+- 12 weeks of check-ins with varied adherence and progress photos every third week,
+  including clients whose adherence and training drop off so the "at risk" panel has
+  something real to show
+- A direct conversation per level-3 client and a group thread per coach, 28–60
+  messages each, timestamps spread across weeks
+- **3 clients subscribed to a second coach**, which is what makes the feed's coach
+  switcher real rather than dead code
+
+The `stripe_*` columns stay null — this build has no payment processor (see
+`05-BUILD-ORDER.md` Phase 6), and `stripe_account_id` is unique, so a shared
+placeholder collides on the second coach.
 
 > The seed is not a developer convenience — it is what makes screenshots look like a
 > product instead of a tutorial. Budget real time for it, and make the fake data
-> plausible. A dashboard showing eight clients with believable names and three months
-> of trending data reads completely differently from one showing "Test User 1".
+> plausible. A dashboard showing believable names and three months of trending data
+> reads completely differently from one showing "Test User 1".
 
 ---
 

@@ -33,6 +33,17 @@ export default async function ProgressPage() {
       weight: c.weight_kg!,
     }));
 
+  // Check-ins already arrive newest-first, so the photo grid inherits that
+  // order — most recent progress at the top, which is what you want to see.
+  const photoWeeks = rows
+    .filter((c) => c.photo_paths?.length)
+    .map((c) => ({
+      id: c.id,
+      week_of: c.week_of,
+      weight_kg: c.weight_kg,
+      photos: c.photo_paths!,
+    }));
+
   const thisWeek = mondayOf(new Date());
   const alreadySubmitted = rows.some((c) => c.week_of === thisWeek);
 
@@ -57,11 +68,44 @@ export default async function ProgressPage() {
         </TabsContent>
 
         <TabsContent value="photos" className="pt-4">
-          <EmptyState
-            icon={ImageIcon}
-            title="No photos yet"
-            description="Progress photos you add to a check-in will show up here."
-          />
+          {photoWeeks.length === 0 ? (
+            <EmptyState
+              icon={ImageIcon}
+              title="No photos yet"
+              description="Progress photos you add to a check-in will show up here."
+            />
+          ) : (
+            <div className="space-y-5">
+              {photoWeeks.map((week) => (
+                <div key={week.id} className="space-y-2">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Week of{" "}
+                    {new Date(week.week_of).toLocaleDateString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                    })}
+                    {week.weight_kg !== null && (
+                      <span className="ml-2 font-mono normal-case tracking-normal text-fg-muted">
+                        {week.weight_kg} kg
+                      </span>
+                    )}
+                  </p>
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                    {week.photos.map((src, i) => (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        key={src}
+                        src={src}
+                        alt={`Progress photo ${i + 1}, week of ${week.week_of}`}
+                        loading="lazy"
+                        className="aspect-[3/4] w-full rounded-lg border border-border object-cover"
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="checkins" className="space-y-4 pt-4">
