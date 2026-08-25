@@ -109,18 +109,32 @@ the response payload.**
 That DevTools check is the moment the architecture proves itself. It is also the
 screenshot for your technical post.
 
-## Phase 6 — Payments · ~8 hours
+## Phase 6 — Payments · **dropped**
 
-- [ ] Stripe test-mode keys
-- [ ] `startConnectOnboarding` with Express accounts
-- [ ] Mirror tiers into Stripe products and prices on the connected account
-- [ ] `createCheckoutSession` with application fee and `transfer_data`
-- [ ] Webhook handler with signature verification
-- [ ] `stripe listen` forwarding locally
-- [ ] `/settings/payments` status UI
+**Not deferred — cut deliberately.** This build ships without a payment
+processor, and the app is complete without one.
 
-**Done when:** a full loop works — subscribe with test card `4242 4242 4242 4242`, the
-webhook writes the row, and previously locked content unlocks on refresh.
+The reasoning: Stripe would have added an account signup, Connect activation,
+and a local webhook forwarder to the setup, and in test mode it still can't
+accept real money. For a portfolio build that's pure setup cost against a
+feature nobody evaluating the project can actually exercise.
+
+**What replaced it.** `lib/actions/subscribe.ts` grants a tier immediately and
+free — see `subscribeDemo`. That's not a stub: it does the exact write the
+Stripe webhook would have done, and it has to use the service role key for the
+same reason the webhook would, because `subscriptions` deliberately has no
+client INSERT policy (`01-DATABASE.md` §10). A visitor can pick a tier and
+watch locked content unlock, which is the thing worth demonstrating.
+
+The trade-off is explicit and stated in the UI: anyone can grant themselves
+any tier for nothing. That is fine for a demo and is the single reason this
+app must never be pointed at real customer data.
+
+**If you ever do want real payments**, the shape is already there — swap the
+demo grant for a Checkout session, add a webhook route that upserts on
+`(client_id, coach_id)`, and store `stripe_subscription_id` / `stripe_customer_id`
+in the columns that already exist for them. `02-BACKEND.md` §5 still documents
+the full Connect flow.
 
 ## Phase 7 — Training · ~12 hours
 

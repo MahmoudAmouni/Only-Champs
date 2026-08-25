@@ -43,13 +43,19 @@ export default async function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="payments" className="max-w-lg pt-6">
-          <div className="rounded-lg border border-warning/30 bg-warning/10 p-4">
+          <div className="rounded-lg border border-border bg-card p-4">
             <p className="text-sm font-medium text-foreground">
-              Payments aren&apos;t connected yet
+              Running in demo mode
             </p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Stripe Connect onboarding lands in a later phase of this build. Your
-              storefront and tiers are visible now, but checkout isn&apos;t live.
+            <p className="mt-1 text-sm text-fg-secondary">
+              This build ships without a payment processor on purpose. Visitors
+              can subscribe to any tier instantly and free, so the tier-gating
+              is fully explorable — no card, no checkout, no real money.
+            </p>
+            <p className="mt-2 text-sm text-fg-muted">
+              Wiring Stripe Connect here would replace the demo grant with a
+              checkout session and a webhook; the subscriptions table already
+              has the shape for it.
             </p>
           </div>
         </TabsContent>
