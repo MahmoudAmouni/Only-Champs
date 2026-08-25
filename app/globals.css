@@ -1,0 +1,209 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * OnlyChamps design tokens — see docs/03-DESIGN-SYSTEM.md.
+ *
+ * shadcn/ui components read the semantic slots below (--background,
+ * --primary, --card, --border, etc.) via the @theme inline block, so
+ * retheming those slots restyles every shadcn primitive automatically.
+ * The app ships dark-first: `.dark` (applied to <html> in layout.tsx)
+ * holds the real OnlyChamps palette; :root is the light fallback.
+ */
+
+:root {
+  /* Light theme */
+  --background: #FFFFFF;
+  --foreground: #0A0E13;
+  --card: #F7F9FB;
+  --card-foreground: #0A0E13;
+  --popover: #FFFFFF;
+  --popover-foreground: #0A0E13;
+  --primary: #8FB81A;              /* volt, darkened for contrast on white */
+  --primary-foreground: #0A0E13;
+  --secondary: #EDF1F6;
+  --secondary-foreground: #0A0E13;
+  --muted: #F7F9FB;
+  --muted-foreground: #47576B;
+  --accent: #EDF1F6;
+  --accent-foreground: #0A0E13;
+  --destructive: #F45B5B;
+  --border: #E2E8F0;
+  --input: #CBD5E1;
+  --ring: #8FB81A;
+
+  --oc-volt-400: #A8D420;
+  --oc-volt-500: #8FB81A;
+  --oc-volt-600: #769913;
+  --oc-on-volt: #0A0E13;
+  --oc-tier-1: #5A6B80;
+  --oc-tier-2: #1B9CCC;
+  --oc-tier-3: #8FB81A;
+  --oc-success: #2FAE72;
+  --oc-warning: #C98A1B;
+  --oc-danger: #F45B5B;
+  --oc-info: #3A87C8;
+
+  --chart-1: var(--oc-tier-1);
+  --chart-2: var(--oc-tier-2);
+  --chart-3: var(--oc-tier-3);
+  --chart-4: var(--oc-success);
+  --chart-5: var(--oc-info);
+
+  --sidebar: #F7F9FB;
+  --sidebar-foreground: #0A0E13;
+  --sidebar-primary: #8FB81A;
+  --sidebar-primary-foreground: #0A0E13;
+  --sidebar-accent: #EDF1F6;
+  --sidebar-accent-foreground: #0A0E13;
+  --sidebar-border: #E2E8F0;
+  --sidebar-ring: #8FB81A;
+
+  --radius: 14px;
+}
+
+.dark {
+  /* OnlyChamps default theme */
+  --background: #0A0E13;
+  --foreground: #F0F4F8;
+  --card: #111820;
+  --card-foreground: #F0F4F8;
+  --popover: #18212B;
+  --popover-foreground: #F0F4F8;
+  --primary: #C2F03A;
+  --primary-foreground: #0A0E13;
+  --secondary: #1F2A36;
+  --secondary-foreground: #F0F4F8;
+  --muted: #111820;
+  --muted-foreground: #9AA9BC;
+  --accent: #1F2A36;
+  --accent-foreground: #F0F4F8;
+  --destructive: #F45B5B;
+  --border: #233040;
+  --input: #35465C;
+  --ring: #C2F03A;
+
+  --oc-volt-400: #D6FF4E;
+  --oc-volt-500: #C2F03A;
+  --oc-volt-600: #A8D420;
+  --oc-on-volt: #0A0E13;
+  --oc-tier-1: #8CA0B8;
+  --oc-tier-2: #45C8F0;
+  --oc-tier-3: #C2F03A;
+  --oc-success: #3DD68C;
+  --oc-warning: #F5B93B;
+  --oc-danger: #F45B5B;
+  --oc-info: #5AA9F0;
+
+  --chart-1: var(--oc-tier-1);
+  --chart-2: var(--oc-tier-2);
+  --chart-3: var(--oc-tier-3);
+  --chart-4: var(--oc-success);
+  --chart-5: var(--oc-info);
+
+  --sidebar: #111820;
+  --sidebar-foreground: #F0F4F8;
+  --sidebar-primary: #C2F03A;
+  --sidebar-primary-foreground: #0A0E13;
+  --sidebar-accent: #1F2A36;
+  --sidebar-accent-foreground: #F0F4F8;
+  --sidebar-border: #233040;
+  --sidebar-ring: #C2F03A;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* OnlyChamps-specific: not part of shadcn's default palette. */
+  --color-volt-400: var(--oc-volt-400);
+  --color-volt-500: var(--oc-volt-500);
+  --color-volt-600: var(--oc-volt-600);
+  --color-volt-ink: var(--oc-on-volt);
+  --color-tier-1: var(--oc-tier-1);
+  --color-tier-2: var(--oc-tier-2);
+  --color-tier-3: var(--oc-tier-3);
+  --color-success: var(--oc-success);
+  --color-warning: var(--oc-warning);
+  --color-danger: var(--oc-danger);
+  --color-info: var(--oc-info);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Radius scale — see docs/03-DESIGN-SYSTEM.md §4. Fixed pixel values,
+     not shadcn's calc()-derived defaults, so cards/inputs/badges match
+     the spec exactly rather than approximately. */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-inter-tight);
+  --font-heading: var(--font-inter-tight);
+  --font-mono: var(--font-jetbrains-mono);
+}
+
+body {
+  font-feature-settings: 'cv11', 'ss01';
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+@layer utilities {
+  /* Numbers in stat tiles, tables, and set logs must not jitter as they
+     update — see docs/03-DESIGN-SYSTEM.md §3. */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

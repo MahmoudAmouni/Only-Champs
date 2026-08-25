@@ -80,12 +80,17 @@ completed states look clickable.
 
 ### 2.2 The CSS
 
+> **Tailwind version note.** This spec targets **Tailwind v4**, which this project's
+> `create-next-app` scaffold installs by default. v4 is CSS-first: there is no
+> `tailwind.config.ts` to extend — tokens are declared as CSS variables and mapped to
+> Tailwind utilities with an `@theme inline` block in the same file. If your project
+> was scaffolded with Tailwind v3 instead, use the config file variant in
+> §2.3 below.
+
 `app/globals.css`:
 
 ```css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 :root {
   /* Dark is the default theme. */
@@ -147,8 +152,54 @@ body {
   font-feature-settings: 'cv11', 'ss01';
   -webkit-font-smoothing: antialiased;
 }
+
+/* Maps the CSS variables above onto Tailwind utility classes: bg-bg, text-fg,
+   bg-volt-500, border-border-strong, rounded-lg, font-mono, etc. This block is
+   what makes `className="bg-surface text-fg-secondary"` resolve — nothing here
+   is optional scaffolding. */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-elevated: var(--elevated);
+  --color-hover: var(--hover);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --color-fg: var(--text);
+  --color-fg-secondary: var(--text-secondary);
+  --color-fg-muted: var(--text-muted);
+
+  --color-volt-400: var(--volt-400);
+  --color-volt-500: var(--volt-500);
+  --color-volt-600: var(--volt-600);
+  --color-volt-ink: var(--on-volt);
+
+  --color-tier-1: var(--tier-1);
+  --color-tier-2: var(--tier-2);
+  --color-tier-3: var(--tier-3);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-inter-tight);
+  --font-mono: var(--font-mono-jetbrains);
+}
 ```
 
+Ship the light theme, but **default to dark and take every screenshot in dark**.
+
+### 2.3 Tailwind v3 variant (only if not on v4)
+
+If the project is on Tailwind v3 instead, keep the same `:root` / `.light` variable
+block (drop the `@theme inline` section) and extend colours the classic way in
 `tailwind.config.ts`:
 
 ```ts
@@ -184,8 +235,6 @@ export default {
   },
 }
 ```
-
-Ship the light theme, but **default to dark and take every screenshot in dark**.
 
 ---
 
@@ -336,12 +385,19 @@ hands between reps needs a target they cannot miss.
 
 ### Button
 
-| Variant | Background | Text | Border | Use |
+| Design intent | Background | Text | Border | Use |
 |---|---|---|---|---|
-| `primary` | `volt-500` | `volt-ink` | none | One per screen. The main action |
-| `secondary` | `surface` | `fg` | `border` | Common actions |
-| `ghost` | transparent | `fg-secondary` | none | Toolbar and icon actions |
-| `danger` | transparent | `danger` | `danger/30` | Cancel, delete, remove |
+| primary | `volt-500` | `volt-ink` | none | One per screen. The main action |
+| secondary | `surface` | `fg` | `border` | Common actions |
+| ghost | transparent | `fg-secondary` | none | Toolbar and icon actions |
+| danger | transparent | `danger` | `danger/30` | Cancel, delete, remove |
+
+> **Variant naming.** The shadcn CLI installed for this project names these
+> variants `default` / `secondary` / `ghost` / `destructive` (plus `outline` and
+> `link`, which this spec doesn't otherwise define — `outline` behaves like a
+> bordered secondary, `link` is text-only for inline actions). Use those literal
+> prop values in code (`<Button variant="default">`); the table above is the
+> design intent behind each one, not the prop name.
 
 | Size | Height | Padding | Text |
 |---|---|---|---|
