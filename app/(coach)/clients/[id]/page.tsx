@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TierBadge } from "@/components/shared/tier-badge";
 import { StatTile } from "@/components/shared/stat-tile";
 import { CheckInList } from "@/components/coach/check-in-list";
+import { MessageClientButton } from "@/components/coach/message-client-button";
 
 function formatCents(cents: number) {
   return `$${(cents / 100).toLocaleString(undefined, { minimumFractionDigits: 0 })}`;
@@ -49,6 +50,7 @@ export default async function ClientDetailPage({
             </div>
           </div>
         </div>
+        <MessageClientButton clientId={profile.id} />
       </div>
 
       <Tabs defaultValue="overview">
