@@ -397,6 +397,36 @@ leaks a title and a thumbnail.
 > `tier_level()` reads `auth.uid()`, a session-level value unaffected by which
 > privileges the *view* runs under.
 
+### `coach_stats` — public social proof without public subscriptions
+
+`/discover` and every storefront show an active-client count. That number is
+social proof and belongs in public, but `subscriptions` is readable only by the
+two parties to it (`read own subscriptions`), and it should stay that way — the
+rows carry billing state and who pays whom.
+
+The same pattern as `post_previews` solves it: a view that exposes the aggregate
+and nothing else.
+
+```sql
+create view coach_stats
+with (security_invoker = false) as
+select
+  c.id as coach_id,
+  count(s.id) filter (
+    where s.status in ('active', 'trialing')
+  )::int as active_client_count
+from coaches c
+left join subscriptions s on s.coach_id = c.id
+where c.is_published
+group by c.id;
+```
+
+`security_invoker = false` for the same reason as above — with the caller's own
+permissions the join would return only the caller's own subscription and every
+count would read 0 or 1. What the view exposes is one integer per published
+coach. There is no row-level detail to leak: not who subscribed, not at what
+tier, not for how much.
+
 The preview view intentionally has *no* tier filter, because it is safe for a client to
 know a locked post exists. The `posts` table itself is filtered strictly.
 
@@ -638,9 +668,28 @@ create policy "read connected profiles" on profiles
     public.coaches_client(id) or public.tier_level(id) > 0
   );
 
+-- A published coach's own profile row is public, because their storefront is.
+-- Without this, `coaches → profiles(avatar_url)` returns null for signed-out
+-- visitors and every public storefront renders a blank avatar — for exactly
+-- the audience the storefront exists to convert.
+create policy "read published coach profiles" on profiles
+  for select using (
+    exists (
+      select 1 from public.coaches c
+      where c.id = profiles.id and c.is_published
+    )
+  );
+
 create policy "update own profile" on profiles
   for update using (auth.uid() = id) with check (auth.uid() = id);
 ```
+
+> This policy widens `profiles` to anonymous readers, so it is worth being
+> precise about what it exposes: `full_name`, `avatar_url`, `bio` and
+> `timezone`, and only for accounts that have published a storefront. That is
+> the same information the storefront already renders on purpose. It does not
+> apply to clients — a client's profile stays visible only to themselves and
+> to the coaches they subscribe to.
 
 ### coaches
 

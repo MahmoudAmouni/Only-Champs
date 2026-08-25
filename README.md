@@ -106,7 +106,40 @@ The full implementation plan lives in [`docs/`](docs/). Read in order.
 
 ## Local development
 
-Setup instructions will be added once the application scaffold lands.
+```bash
+npm install
+cp .env.example .env.local   # fill in your Supabase project's keys
+npm run db:migrate           # applies supabase/migrations/*.sql
+npx tsx supabase/seed.ts     # populates the demo data described below
+npm run dev
+```
+
+## Demo data
+
+The seed builds a working marketplace rather than a handful of test rows:
+**6 coaches**, each with their own pricing ladder, content library and client
+roster, and **27 clients** with assigned programs, months of logged workouts,
+12 weeks of check-ins and real conversations. Every client has training
+history, so no screen in the app renders empty.
+
+Every account uses the password `OnlyChamps2026!`.
+
+| Sign in as | Email | What it shows |
+| --- | --- | --- |
+| Coach | `marcus.chen@onlychamps.demo` | The fullest roster — 8 clients, $962 MRR, 2 flagged at risk |
+| Client, level 1 | `sofia.martins@onlychamps.demo` | Mostly locked feed, and two coaches so the feed switcher is live |
+| Client, level 2 | `priya.nair@onlychamps.demo` | Group chat and the shared group block |
+| Client, level 3 | `elena.volkov@onlychamps.demo` | Everything unlocked, direct chat with the coach |
+
+The other five coaches are `nadia.rahman@`, `theo.almeida@`, `kaia.lindqvist@`,
+`andre.wallace@` and `yuki.tanaka@onlychamps.demo`. Browse all of them at
+`/discover`, or visit a storefront directly at `/c/marcus`, `/c/nadia`,
+`/c/theo`, `/c/kaia`, `/c/dre`, `/c/yuki` — no account needed.
+
+> **This build has no payment processor.** Subscribing grants the tier
+> immediately and free, which means anyone can give themselves any tier. That
+> is deliberate for a demo (see `docs/05-BUILD-ORDER.md` Phase 6) and is the
+> reason this app must never be pointed at real customer data.
 
 ---
 

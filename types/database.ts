@@ -614,6 +614,21 @@ export type Database = {
           },
         ];
       };
+      coach_stats: {
+        Row: {
+          coach_id: string;
+          active_client_count: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "coaches_id_fkey";
+            columns: ["coach_id"];
+            isOneToOne: true;
+            referencedRelation: "coaches";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Functions: {
       tier_level: {

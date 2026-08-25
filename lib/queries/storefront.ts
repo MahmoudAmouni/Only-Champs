@@ -24,11 +24,16 @@ export async function getStorefront(handle: string) {
     .order("published_at", { ascending: false })
     .limit(6);
 
-  const { count: activeClientCount } = await supabase
-    .from("subscriptions")
-    .select("id", { count: "exact", head: true })
+  // Counted through coach_stats rather than subscriptions: a signed-out
+  // visitor cannot read subscriptions (nor should they), so counting there
+  // returned 0 and the social-proof badge never rendered for the audience
+  // the storefront exists to convert. See 01-DATABASE.md §7.
+  const { data: stats } = await supabase
+    .from("coach_stats")
+    .select("active_client_count")
     .eq("coach_id", coach.id)
-    .in("status", ["active", "trialing"]);
+    .maybeSingle();
+  const activeClientCount = stats?.active_client_count ?? 0;
 
   const user = await getCurrentUser();
   let currentSubscription: { tierLevel: number } | null = null;
