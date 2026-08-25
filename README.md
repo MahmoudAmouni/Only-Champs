@@ -143,6 +143,52 @@ The other five coaches are `nadia.rahman@`, `theo.almeida@`, `kaia.lindqvist@`,
 > is deliberate for a demo (see `docs/05-BUILD-ORDER.md` Phase 6) and is the
 > reason this app must never be pointed at real customer data.
 
+
+## Deploying
+
+Everything below runs on free tiers — Vercel Hobby for the app, Supabase Free
+for the database. There is no payment processor to configure (see
+`docs/05-BUILD-ORDER.md` Phase 6).
+
+**1. Import the repo on Vercel.** New Project → import this repository. The
+framework is detected automatically; there is no build configuration to write.
+
+**2. Set the environment variables** (Project Settings → Environment
+Variables), from Supabase → Project Settings → API:
+
+| Variable | Value |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | The `anon` / publishable key |
+| `SUPABASE_SERVICE_ROLE_KEY` | The `service_role` / secret key |
+
+`NEXT_PUBLIC_APP_URL` is optional on Vercel — `lib/site-url.ts` falls back to
+the project's production domain. Set it only for a custom domain.
+
+`DATABASE_URL` is **not** needed by the deployed app. It is only used by the
+migration runner and the seed, both of which run from your machine.
+
+**3. Point Supabase at the deployed URL.** Authentication → URL Configuration:
+set Site URL to `https://<your-project>.vercel.app` and add
+`https://<your-project>.vercel.app/auth/callback` to Redirect URLs. Skip this
+and sign-up confirmation links will send people to localhost.
+
+**4. Deploy**, then run the migrations and seed against the production
+database from your machine — `npm run db:migrate` and
+`npx tsx supabase/seed.ts` with `.env.local` pointing at that project.
+
+### The free-tier catch worth knowing
+
+**A Supabase free project pauses after 7 days without activity.** For a
+portfolio link that is the failure mode that matters: someone opens it three
+weeks after you post it and the app cannot reach its database. Unpausing is
+one click in the Supabase dashboard, but you have to know it happened. Either
+check before you share the link, or keep the project warm with a scheduled
+request.
+
+Vercel Hobby does not sleep, so the site itself stays up either way — which
+is worse, because it looks live while every query fails.
+
 ---
 
 Built by [Mahmoud Abou Amoun](https://github.com/MahmoudAmouni).
