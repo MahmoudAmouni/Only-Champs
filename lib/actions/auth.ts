@@ -4,6 +4,7 @@ import { z } from "zod";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { getSiteUrl } from "@/lib/site-url";
 
 const SignUpSchema = z.object({
   email: z.string().email("Enter a valid email address"),
@@ -28,7 +29,7 @@ export async function signUp(_prev: ActionState, formData: FormData): Promise<Ac
     password,
     options: {
       data: { full_name: fullName, role },
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+      emailRedirectTo: `${getSiteUrl()}/auth/callback`,
     },
   });
 
@@ -85,7 +86,7 @@ export async function signOut() {
 
 export async function signInWithGoogle(next?: string) {
   const supabase = await createClient();
-  const redirectTo = new URL("/auth/callback", process.env.NEXT_PUBLIC_APP_URL);
+  const redirectTo = new URL("/auth/callback", getSiteUrl());
   if (next) redirectTo.searchParams.set("next", next);
 
   const { data, error } = await supabase.auth.signInWithOAuth({
