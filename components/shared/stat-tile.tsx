@@ -48,7 +48,7 @@ export function StatTile({
       )}
 
       <div className="relative">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-fg-muted">
+        <div className="card-meta text-[11px] font-semibold uppercase tracking-[0.08em] text-fg-muted opacity-90">
           {label}
         </div>
 

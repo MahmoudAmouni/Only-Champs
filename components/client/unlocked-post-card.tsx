@@ -68,12 +68,12 @@ export function UnlockedPostCard({
           )}
         </div>
 
-        <h3 className="text-base font-semibold leading-snug tracking-[-0.01em] text-foreground">
+        <h3 className="card-title text-base font-semibold leading-snug tracking-[-0.01em] text-foreground">
           {title}
         </h3>
 
         {body && (
-          <p className="text-sm leading-relaxed text-fg-secondary">{body}</p>
+          <p className="card-body text-sm leading-relaxed text-fg-secondary">{body}</p>
         )}
       </div>
     </article>

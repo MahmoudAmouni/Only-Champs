@@ -36,8 +36,12 @@ export function Reveal({
       cleanup.current = null;
       if (!el) return;
 
+      // Only hide if we're confident the reveal can actually fire. A
+      // backgrounded/non-compositing tab can arm an observer that never
+      // triggers, which would strand the content invisible.
       if (
         typeof IntersectionObserver === "undefined" ||
+        document.visibilityState !== "visible" ||
         window.matchMedia("(prefers-reduced-motion: reduce)").matches
       ) {
         return; // stays visible
@@ -79,6 +83,72 @@ export function Reveal({
         className
       )}
     >
+      {children}
+    </div>
+  );
+}
+
+/**
+ * Line-mask reveal: each child slides up from behind its own overflow
+ * edge when scrolled into view. Works with arbitrary children (nested
+ * gradient spans included), unlike word-splitting approaches.
+ *
+ * Same fail-safe ordering as Reveal — `data-shown` starts "true" and is
+ * only set false once an observer is confirmed running, so text is never
+ * left permanently hidden if JS doesn't execute.
+ */
+export function MaskReveal({
+  children,
+  delay = 0,
+  className,
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+}) {
+  const cleanup = useRef<(() => void) | null>(null);
+
+  const attach = useCallback(
+    (el: HTMLDivElement | null) => {
+      cleanup.current?.();
+      cleanup.current = null;
+      if (!el) return;
+
+      // Same reasoning as Reveal: never hide text unless the reveal is
+      // genuinely able to run.
+      if (
+        typeof IntersectionObserver === "undefined" ||
+        document.visibilityState !== "visible" ||
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      ) {
+        return; // stays shown
+      }
+
+      el.dataset.shown = "false";
+
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            window.setTimeout(() => {
+              el.dataset.shown = "true";
+            }, delay);
+            io.disconnect();
+          }
+        },
+        { threshold: 0.2, rootMargin: "0px 0px -6% 0px" }
+      );
+
+      io.observe(el);
+      cleanup.current = () => io.disconnect();
+    },
+    [delay]
+  );
+
+  useEffect(() => () => cleanup.current?.(), []);
+
+  return (
+    <div ref={attach} data-shown="true" className={className}>
       {children}
     </div>
   );
