@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Logo } from "@/components/brand/logo";
 import { SidebarNav } from "@/components/coach/sidebar-nav";
 import { MobileNav } from "@/components/coach/mobile-nav";
 import { AccountMenu } from "@/components/shared/account-menu";
@@ -19,11 +20,8 @@ export default async function CoachLayout({
     <div className="flex min-h-screen bg-background">
       <aside className="fixed inset-y-0 left-0 hidden w-60 flex-col border-r border-border bg-sidebar lg:flex">
         <div className="flex h-16 items-center border-b border-border px-5">
-          <Link
-            href="/dashboard"
-            className="font-display text-lg font-bold tracking-[-0.01em] text-foreground"
-          >
-            OnlyChamps
+          <Link href="/dashboard">
+            <Logo />
           </Link>
         </div>
         <div className="flex-1 overflow-y-auto py-4">
@@ -35,9 +33,7 @@ export default async function CoachLayout({
         <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-border/60 bg-background/80 px-4 backdrop-blur-xl lg:px-8">
           <div className="flex items-center gap-2">
             <MobileNav />
-            <span className="text-sm font-medium text-muted-foreground lg:hidden">
-              OnlyChamps
-            </span>
+            <Logo className="lg:hidden" markClassName="size-6" />
           </div>
           <AccountMenu
             fullName={user.profile.full_name}

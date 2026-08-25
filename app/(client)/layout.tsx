@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Logo } from "@/components/brand/logo";
 import { TabBar } from "@/components/client/tab-bar";
 import { ClientSidebarNav } from "@/components/client/sidebar-nav";
 import { AccountMenu } from "@/components/shared/account-menu";
@@ -28,11 +29,8 @@ export default async function ClientLayout({
     <div className="flex min-h-screen bg-background">
       <aside className="fixed inset-y-0 left-0 hidden w-60 flex-col border-r border-border bg-sidebar lg:flex">
         <div className="flex h-16 items-center border-b border-border px-5">
-          <Link
-            href="/feed"
-            className="font-display text-lg font-bold tracking-[-0.01em] text-foreground"
-          >
-            OnlyChamps
+          <Link href="/feed">
+            <Logo />
           </Link>
         </div>
         <div className="flex-1 overflow-y-auto py-4">
@@ -42,9 +40,7 @@ export default async function ClientLayout({
 
       <div className="flex min-h-screen flex-1 flex-col lg:pl-60">
         <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-border/60 bg-background/85 px-4 backdrop-blur-xl lg:h-16 lg:px-8">
-          <span className="font-display text-base font-bold tracking-[-0.01em] text-foreground lg:hidden">
-            OnlyChamps
-          </span>
+          <Logo className="lg:hidden" markClassName="size-6" />
           <span className="hidden text-sm text-fg-muted lg:block">
             Welcome back, {user.profile.full_name.split(" ")[0] || "champ"}
           </span>

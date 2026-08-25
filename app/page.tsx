@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Logo } from "@/components/brand/logo";
 import Image from "next/image";
 import {
   ArrowRight,
@@ -141,11 +142,8 @@ export default function Home() {
       {/* ---------------------------------------------------------------- nav */}
       <header className="sticky top-0 z-50 border-b border-border/60 bg-background/70 backdrop-blur-xl">
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6">
-          <Link
-            href="/"
-            className="font-display text-lg font-bold tracking-[-0.02em] text-foreground"
-          >
-            OnlyChamps
+          <Link href="/">
+            <Logo />
           </Link>
           <div className="flex items-center gap-2">
             <Button
@@ -512,9 +510,7 @@ export default function Home() {
       {/* ------------------------------------------------------------- footer */}
       <footer className="border-t border-border/60 px-6 py-10">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 sm:flex-row">
-          <span className="font-display text-sm font-bold tracking-[-0.01em] text-foreground">
-            OnlyChamps
-          </span>
+          <Logo markClassName="size-5" />
           <p className="text-xs text-fg-muted">
             A subscription platform for online fitness coaches.
           </p>
