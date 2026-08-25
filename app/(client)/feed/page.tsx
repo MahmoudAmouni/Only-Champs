@@ -28,7 +28,7 @@ export default async function FeedPage({
 
   const activeCoach =
     subscribedCoaches.find((c) => c.id === coachParam) ?? subscribedCoaches[0];
-  const posts = await getFeedForCoach(activeCoach.id);
+  const posts = await getFeedForCoach(activeCoach.id, user.id);
 
   return (
     <div className="space-y-4">
@@ -57,11 +57,12 @@ export default async function FeedPage({
           description={`${activeCoach.name} hasn't published anything yet.`}
         />
       ) : (
-        <div className="stagger space-y-4">
+        <div className="stagger grid grid-cols-1 gap-4 xl:grid-cols-2">
           {posts.map((post) =>
             post.full ? (
               <UnlockedPostCard
                 key={post.id}
+                id={post.id}
                 title={post.title}
                 body={post.full.body}
                 mediaType={post.media_type}
@@ -70,6 +71,9 @@ export default async function FeedPage({
                 durationSeconds={post.duration_seconds}
                 tierLevel={post.min_tier_level as 1 | 2 | 3}
                 publishedAt={post.published_at}
+                likeCount={post.likeCount}
+                liked={post.liked}
+                saved={post.saved}
               />
             ) : (
               <LockedOverlay

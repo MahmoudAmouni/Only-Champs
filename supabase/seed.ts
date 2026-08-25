@@ -346,7 +346,7 @@ const COACHES: CoachDef[] = [
       { title: "Opener selection, and why yours is too heavy", level: 3, type: "video", body: "Your opener should be a lift you could hit on your worst day. Walkthrough of how I pick all three attempts." },
     ],
     clients: [
-      { name: "Sofia Martins", level: 1, joinedDaysAgo: 150, lastWorkoutDaysAgo: 2 },
+      { name: "Sofia Martins", level: 3, joinedDaysAgo: 150, lastWorkoutDaysAgo: 2 },
       { name: "Daniel Osei", level: 1, joinedDaysAgo: 128, lastWorkoutDaysAgo: 24, atRisk: true },
       { name: "Priya Nair", level: 2, joinedDaysAgo: 111, lastWorkoutDaysAgo: 1 },
       { name: "Jordan Blake", level: 2, joinedDaysAgo: 84, lastWorkoutDaysAgo: 21, atRisk: true },
@@ -603,9 +603,17 @@ const COACHES: CoachDef[] = [
  * switcher real rather than dead code, and exercises the multi-coach path
  * through /profile and /chat. */
 const CROSS_SUBSCRIPTIONS: { client: string; coach: string; level: 1 | 2 | 3 }[] = [
+  // Sofia is the demo client. She holds three memberships at three different
+  // levels on purpose: level 3 with Marcus (everything unlocked, direct
+  // chat), level 2 with Theo (group chat), level 1 with Nadia (mostly locked
+  // feed). One account therefore demonstrates the whole ladder at once,
+  // including the tier gate, rather than only the top or bottom of it.
   { client: "Sofia Martins", coach: "nadia", level: 1 },
+  { client: "Sofia Martins", coach: "theo", level: 2 },
   { client: "Elena Volkov", coach: "dre", level: 2 },
   { client: "Priya Nair", coach: "theo", level: 1 },
+  { client: "Amara Okafor", coach: "yuki", level: 1 },
+  { client: "Liam Fischer", coach: "kaia", level: 1 },
 ];
 
 // ---------------------------------------------------------------------------
@@ -667,6 +675,7 @@ type SeededCoach = {
   def: CoachDef;
   id: string;
   tierIdByLevel: Map<number, string>;
+  posts: { id: string; min_tier_level: number }[];
 };
 
 async function seedCoach(def: CoachDef): Promise<SeededCoach> {
@@ -718,11 +727,19 @@ async function seedCoach(def: CoachDef): Promise<SeededCoach> {
     duration_seconds: p.type === "video" ? randInt(90, 720) : null,
     published_at: new Date(Date.now() - i * 2 * 86_400_000).toISOString(),
   }));
-  const { error: postErr } = await admin.from("posts").insert(posts);
+  const { data: postRows, error: postErr } = await admin
+    .from("posts")
+    .insert(posts)
+    .select("id, min_tier_level");
   if (postErr) throw new Error(`posts insert (${def.handle}): ${postErr.message}`);
 
   console.log(`  ${def.handle.padEnd(7)} ${def.tiers.length} tiers, ${posts.length} posts`);
-  return { def, id, tierIdByLevel: new Map(tiers!.map((t) => [t.level, t.id])) };
+  return {
+    def,
+    id,
+    tierIdByLevel: new Map(tiers!.map((t) => [t.level, t.id])),
+    posts: postRows!,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -1214,6 +1231,58 @@ async function seedConversations(coach: SeededCoach, clients: SeededClient[]) {
   return { conversations: level3.length + 1, messages: totalMessages };
 }
 
+
+// ---------------------------------------------------------------------------
+// 8. Engagement — likes and saves.
+//
+//    Seeded so the like counts on a feed are not all zero and the saved tab
+//    on /profile has something in it. A client can only act on a post they
+//    hold the tier for, which is enforced by RLS; this respects the same
+//    rule so the seeded data could have been produced by real use.
+// ---------------------------------------------------------------------------
+
+async function seedEngagement(coach: SeededCoach, clients: SeededClient[]) {
+  const likes: { post_id: string; client_id: string; created_at: string }[] = [];
+  const saves: { post_id: string; client_id: string; created_at: string }[] = [];
+
+  for (const client of clients) {
+    const reachable = coach.posts.filter((p) => p.min_tier_level <= client.level);
+    if (!reachable.length) continue;
+
+    // Likes are common, saves are rare — that is how people actually behave.
+    for (const post of reachable) {
+      if (Math.random() < 0.45) {
+        likes.push({
+          post_id: post.id,
+          client_id: client.id,
+          created_at: daysAgo(randInt(0, 40)).toISOString(),
+        });
+      }
+    }
+
+    const saveCount = Math.min(reachable.length, randInt(1, 4));
+    const shuffled = [...reachable].sort(() => Math.random() - 0.5).slice(0, saveCount);
+    for (const post of shuffled) {
+      saves.push({
+        post_id: post.id,
+        client_id: client.id,
+        created_at: daysAgo(randInt(0, 30)).toISOString(),
+      });
+    }
+  }
+
+  if (likes.length) {
+    const { error } = await admin.from("post_likes").insert(likes);
+    if (error) throw new Error(`post_likes insert: ${error.message}`);
+  }
+  if (saves.length) {
+    const { error } = await admin.from("saved_posts").insert(saves);
+    if (error) throw new Error(`saved_posts insert: ${error.message}`);
+  }
+
+  return { likes: likes.length, saves: saves.length };
+}
+
 // ---------------------------------------------------------------------------
 // Run
 // ---------------------------------------------------------------------------
@@ -1240,6 +1309,8 @@ async function main() {
   const allClients: SeededClient[] = [];
   let conversationCount = 0;
   let messageCount = 0;
+  let likeCount = 0;
+  let saveCount = 0;
 
   for (const coach of coaches) {
     console.log(`Populating ${coach.def.handle}...`);
@@ -1248,8 +1319,11 @@ async function main() {
     await seedWorkoutLogs(clients, programs, loadByExerciseId);
     await seedCheckIns(clients);
     const convo = await seedConversations(coach, clients);
+    const engagement = await seedEngagement(coach, clients);
     conversationCount += convo.conversations;
     messageCount += convo.messages;
+    likeCount += engagement.likes;
+    saveCount += engagement.saves;
     allClients.push(...clients);
   }
 
@@ -1259,13 +1333,14 @@ async function main() {
   console.log(`\nSeed complete in ${seconds}s.`);
   console.log(`  ${coaches.length} coaches, ${allClients.length} clients`);
   console.log(`  ${conversationCount} conversations, ${messageCount} messages`);
+  console.log(`  ${likeCount} likes, ${saveCount} saved posts`);
   console.log(`\nEvery account uses the password: ${DEMO_PASSWORD}`);
   console.log("\nCoaches:");
   for (const c of coaches) console.log(`  ${emailFor(c.def.name).padEnd(34)} /c/${c.def.handle}`);
   console.log("\nClients worth logging in as:");
-  console.log(`  ${emailFor("Sofia Martins").padEnd(34)} level 1 — mostly locked feed, two coaches`);
+  console.log(`  ${emailFor("Sofia Martins").padEnd(34)} 3 memberships at levels 3/2/1 — the full ladder`);
   console.log(`  ${emailFor("Priya Nair").padEnd(34)} level 2 — group chat, group block`);
-  console.log(`  ${emailFor("Elena Volkov").padEnd(34)} level 3 — everything unlocked, direct chat`);
+  console.log(`  ${emailFor("Daniel Osei").padEnd(34)} level 1 — mostly locked feed`);
 }
 
 main().catch((err) => {

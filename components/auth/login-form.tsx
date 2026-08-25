@@ -16,10 +16,11 @@ import { Label } from "@/components/ui/label";
  * magic button means a visitor can also sign back in later, and can see
  * they are looking at seeded data rather than someone's real account.
  *
- * The client is deliberately a level-1 subscriber: that is the account that
- * shows the tier gate doing its job — a feed mixing unlocked posts with
- * locked ones — which is the single most interesting thing in the app. A
- * level-3 account has nothing locked and demonstrates less.
+ * The client holds three memberships at three different levels — 3, 2 and 1
+ * with different coaches — so one account demonstrates the whole ladder:
+ * everything unlocked and a direct chat with one coach, group chat with
+ * another, and a mostly locked feed with the third. A single-membership
+ * account shows either the gate or the full access, never both.
  */
 const DEMO_PASSWORD = "OnlyChamps2026!";
 
@@ -32,7 +33,7 @@ const DEMO_ACCOUNTS = [
   {
     role: "Client",
     email: "sofia.martins@onlychamps.demo",
-    blurb: "Locked feed, two coaches",
+    blurb: "3 memberships, chat, mixed access",
   },
 ] as const;
 

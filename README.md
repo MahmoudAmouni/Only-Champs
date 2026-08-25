@@ -129,9 +129,9 @@ nothing to type.
 | Sign in as | Email | What it shows |
 | --- | --- | --- |
 | Coach | `marcus.chen@onlychamps.demo` | The fullest roster — 8 clients, $962 MRR, 2 flagged at risk |
-| Client, level 1 | `sofia.martins@onlychamps.demo` | Mostly locked feed, and two coaches so the feed switcher is live |
+| Client | `sofia.martins@onlychamps.demo` | Three memberships at levels 3/2/1 — full access and direct chat with one coach, group chat with another, a locked feed with the third |
 | Client, level 2 | `priya.nair@onlychamps.demo` | Group chat and the shared group block |
-| Client, level 3 | `elena.volkov@onlychamps.demo` | Everything unlocked, direct chat with the coach |
+| Client, level 1 | `daniel.osei@onlychamps.demo` | Mostly locked feed, and flagged at risk on the coach's dashboard |
 
 The other five coaches are `nadia.rahman@`, `theo.almeida@`, `kaia.lindqvist@`,
 `andre.wallace@` and `yuki.tanaka@onlychamps.demo`. Browse all of them at
