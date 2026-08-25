@@ -91,6 +91,19 @@ signed-URL video delivery, and an analytics layer for the coach dashboard.
 - [ ] Program builder and client workout logging
 - [ ] Coach analytics dashboard
 
+## Documentation
+
+The full implementation plan lives in [`docs/`](docs/). Read in order.
+
+| Doc | Covers |
+|---|---|
+| [00 — Architecture](docs/00-ARCHITECTURE.md) | How the pieces fit, request lifecycles, repo layout, env vars |
+| [01 — Database](docs/01-DATABASE.md) | Every table and policy as runnable SQL, including the tier-gating model |
+| [02 — Backend](docs/02-BACKEND.md) | Auth, server actions, Stripe Connect, webhooks, storage, realtime |
+| [03 — Design System](docs/03-DESIGN-SYSTEM.md) | Colour, type, spacing, motion, and every component spec |
+| [04 — Frontend](docs/04-FRONTEND.md) | Every screen, its data, and all of its states |
+| [05 — Build Order](docs/05-BUILD-ORDER.md) | The ordered task list, phase by phase |
+
 ## Local development
 
 Setup instructions will be added once the application scaffold lands.
