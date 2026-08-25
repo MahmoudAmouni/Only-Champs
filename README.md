@@ -122,7 +122,9 @@ roster, and **27 clients** with assigned programs, months of logged workouts,
 12 weeks of check-ins and real conversations. Every client has training
 history, so no screen in the app renders empty.
 
-Every account uses the password `OnlyChamps2026!`.
+Every account uses the password `OnlyChamps2026!`. The sign-in page has
+**Coach** and **Client** buttons that fill the form for you, so there is
+nothing to type.
 
 | Sign in as | Email | What it shows |
 | --- | --- | --- |
