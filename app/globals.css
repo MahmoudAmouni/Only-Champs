@@ -47,6 +47,12 @@
   --oc-danger: #F45B5B;
   --oc-info: #3A87C8;
 
+  /* Third text level. docs/03-DESIGN-SYSTEM.md §2 specifies three tiers
+     (primary / secondary / muted) but shadcn only ships two, which
+     collapses secondary and muted into one tone and flattens the type
+     hierarchy. --muted-foreground covers "secondary"; this is "muted". */
+  --fg-muted: #7A8AA0;
+
   --chart-1: var(--oc-tier-1);
   --chart-2: var(--oc-tier-2);
   --chart-3: var(--oc-tier-3);
@@ -97,6 +103,7 @@
   --oc-warning: #F5B93B;
   --oc-danger: #F45B5B;
   --oc-info: #5AA9F0;
+  --fg-muted: #63748A;
 
   --chart-1: var(--oc-tier-1);
   --chart-2: var(--oc-tier-2);
@@ -146,6 +153,12 @@
   --color-warning: var(--oc-warning);
   --color-danger: var(--oc-danger);
   --color-info: var(--oc-info);
+
+  /* Semantic text ramp — fg / fg-secondary / fg-muted reads more clearly
+     at call sites than foreground / muted-foreground / (nothing). */
+  --color-fg: var(--foreground);
+  --color-fg-secondary: var(--muted-foreground);
+  --color-fg-muted: var(--fg-muted);
 
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
@@ -201,9 +214,231 @@ body {
   }
 }
 
+/* ==========================================================================
+   MOTION SYSTEM
+   Durations and easing from docs/03-DESIGN-SYSTEM.md §7. Everything here
+   animates transform/opacity only — never width/height/top — so it stays
+   on the compositor and holds 60fps on the mid-range Android phone a
+   client is actually holding mid-workout.
+   ========================================================================== */
+
+@theme inline {
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes oc-fade-up {
+  from { opacity: 0; transform: translate3d(0, 16px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes oc-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes oc-scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes oc-slide-right {
+  from { opacity: 0; transform: translate3d(-12px, 0, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+/* Slow parallax drift for the ambient background orbs. */
+@keyframes oc-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33%      { transform: translate3d(3%, -4%, 0) scale(1.06); }
+  66%      { transform: translate3d(-3%, 3%, 0) scale(0.97); }
+}
+
+/* Sweep used for the volt gradient text and the shimmer on premium cards. */
+@keyframes oc-sweep {
+  from { background-position: 200% center; }
+  to   { background-position: -200% center; }
+}
+
+@keyframes oc-glow-pulse {
+  0%, 100% { opacity: 0.5; }
+  50%      { opacity: 0.9; }
+}
+
+/* Rotating conic border for the "recommended" tier card. */
+@keyframes oc-spin-slow {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes oc-marquee {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+
+@layer utilities {
+  .animate-fade-up    { animation: oc-fade-up 620ms var(--ease-out-expo) both; }
+  .animate-fade-in    { animation: oc-fade-in 500ms ease-out both; }
+  .animate-scale-in   { animation: oc-scale-in 460ms var(--ease-out-expo) both; }
+  .animate-slide-right{ animation: oc-slide-right 480ms var(--ease-out-expo) both; }
+  .animate-drift      { animation: oc-drift 22s ease-in-out infinite; }
+  .animate-glow-pulse { animation: oc-glow-pulse 4s ease-in-out infinite; }
+  .animate-spin-slow  { animation: oc-spin-slow 6s linear infinite; }
+  .animate-marquee    { animation: oc-marquee 38s linear infinite; }
+
+  /* Stagger children of a list/grid without hand-writing delays.
+     Covers the first 12 items — past that the eye stops tracking order
+     anyway and a longer cascade just feels slow. */
+  .stagger > *          { animation: oc-fade-up 620ms var(--ease-out-expo) both; }
+  .stagger > *:nth-child(1)  { animation-delay: 40ms; }
+  .stagger > *:nth-child(2)  { animation-delay: 90ms; }
+  .stagger > *:nth-child(3)  { animation-delay: 140ms; }
+  .stagger > *:nth-child(4)  { animation-delay: 190ms; }
+  .stagger > *:nth-child(5)  { animation-delay: 240ms; }
+  .stagger > *:nth-child(6)  { animation-delay: 290ms; }
+  .stagger > *:nth-child(7)  { animation-delay: 340ms; }
+  .stagger > *:nth-child(8)  { animation-delay: 390ms; }
+  .stagger > *:nth-child(9)  { animation-delay: 440ms; }
+  .stagger > *:nth-child(10) { animation-delay: 490ms; }
+  .stagger > *:nth-child(11) { animation-delay: 540ms; }
+  .stagger > *:nth-child(12) { animation-delay: 590ms; }
+
+  .delay-100 { animation-delay: 100ms; }
+  .delay-200 { animation-delay: 200ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-400 { animation-delay: 400ms; }
+  .delay-500 { animation-delay: 500ms; }
+  .delay-700 { animation-delay: 700ms; }
+
+  /* Volt gradient text with a slow light sweep. */
+  .text-gradient-volt {
+    background-image: linear-gradient(
+      100deg,
+      var(--oc-volt-500) 0%,
+      var(--oc-volt-400) 25%,
+      #ffffff 40%,
+      var(--oc-volt-400) 55%,
+      var(--oc-volt-500) 80%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: oc-sweep 7s linear infinite;
+  }
+
+  /* Muted version for large headline words — reads as premium metal
+     rather than neon. */
+  .text-gradient-chrome {
+    background-image: linear-gradient(
+      180deg,
+      var(--foreground) 0%,
+      color-mix(in oklab, var(--foreground) 55%, transparent) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Hairline top highlight — the detail that makes a dark card read as a
+     physical surface catching light rather than a flat rectangle. */
+  .surface-sheen {
+    position: relative;
+  }
+  .surface-sheen::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding-top: 1px;
+    background: linear-gradient(
+      180deg,
+      color-mix(in oklab, #ffffff 12%, transparent),
+      transparent 60%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .glow-volt {
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--oc-volt-500) 22%, transparent),
+      0 8px 32px -8px color-mix(in oklab, var(--oc-volt-500) 40%, transparent);
+  }
+
+  .glow-volt-lg {
+    box-shadow:
+      0 0 0 1px color-mix(in oklab, var(--oc-volt-500) 28%, transparent),
+      0 16px 60px -12px color-mix(in oklab, var(--oc-volt-500) 55%, transparent);
+  }
+
+  /* Interactive lift used on cards and list rows. */
+  .lift {
+    transition:
+      transform 260ms var(--ease-out-expo),
+      box-shadow 260ms var(--ease-out-expo),
+      border-color 260ms var(--ease-out-expo);
+    will-change: transform;
+  }
+  .lift:hover {
+    transform: translate3d(0, -3px, 0);
+  }
+
+  /* Ambient blurred colour orb for hero sections. */
+  .orb {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(80px);
+    pointer-events: none;
+    opacity: 0.55;
+  }
+
+  /* Fine film grain over dark gradients — kills the banding you get from
+     large soft gradients on 8-bit displays. */
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Subtle grid, for hero backdrops. Masked so it fades out at the edges
+     instead of stopping on a hard line. */
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, color-mix(in oklab, var(--border) 60%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in oklab, var(--border) 60%, transparent) 1px, transparent 1px);
+    background-size: 64px 64px;
+    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 9999px;
+  }
+}
+
+/* Honour the OS setting — kill motion, keep everything legible and in
+   its final state. See docs/03-DESIGN-SYSTEM.md §7. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
+  .lift:hover { transform: none; }
 }

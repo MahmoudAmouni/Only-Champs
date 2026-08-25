@@ -27,7 +27,7 @@ export default async function ProgramsPage() {
           description="Create a program and assign it to a client."
         />
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="stagger grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {programs.map((p) => (
             <Card key={p.id} className="space-y-2 p-4">
               <p className="font-medium text-foreground">{p.name}</p>

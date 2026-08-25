@@ -8,16 +8,18 @@ import { CLIENT_NAV_ITEMS } from "@/components/client/nav-items";
  */
 export function TabBar() {
   return (
-    <nav className="grid h-16 grid-cols-4 border-t border-border bg-background pb-[env(safe-area-inset-bottom)]">
+    <nav className="sticky bottom-0 z-20 grid h-16 grid-cols-4 border-t border-border bg-background/85 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl">
       {CLIENT_NAV_ITEMS.map(({ href, label, icon: Icon }) => (
         <NavLink
           key={href}
           href={href}
-          className="flex flex-col items-center justify-center gap-1 text-xs font-medium transition-colors"
-          activeClassName="text-primary"
-          inactiveClassName="text-muted-foreground"
+          className="group relative flex flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors duration-200"
+          activeClassName="text-volt-500"
+          inactiveClassName="text-fg-muted hover:text-fg-secondary"
         >
-          <Icon className="size-5" />
+          {/* Volt bar above the active tab. */}
+          <span className="absolute inset-x-5 top-0 h-0.5 rounded-b-full bg-volt-500 opacity-0 transition-opacity duration-200 group-aria-[current=page]:opacity-100" />
+          <Icon className="size-[18px] transition-transform duration-200 group-active:scale-90 group-aria-[current=page]:scale-110" />
           {label}
         </NavLink>
       ))}

@@ -22,7 +22,11 @@ export const metadata: Metadata = {
   description: "A subscription platform for online fitness coaches.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html
       lang="en"

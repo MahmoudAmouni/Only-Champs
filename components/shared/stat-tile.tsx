@@ -1,3 +1,4 @@
+import { TrendingDown, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -14,12 +15,14 @@ export function StatTile({
   value,
   delta,
   invertPolarity = false,
+  accent = false,
   className,
 }: {
   label: string;
   value: string;
   delta?: { value: string; direction: "up" | "down" };
   invertPolarity?: boolean;
+  accent?: boolean;
   className?: string;
 }) {
   const isGood = delta
@@ -28,29 +31,43 @@ export function StatTile({
       : delta.direction === "up"
     : null;
 
+  const TrendIcon = delta?.direction === "up" ? TrendingUp : TrendingDown;
+
   return (
     <div
       className={cn(
-        "rounded-lg border border-border bg-card p-5",
+        "lift surface-sheen group relative overflow-hidden rounded-lg border border-border bg-card p-5 hover:border-border-strong",
         className
       )}
     >
-      <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-        {label}
-      </div>
-      <div className="mt-1 font-display text-[36px] font-bold leading-[40px] tracking-[-0.02em] tabular-nums text-foreground">
-        {value}
-      </div>
-      {delta && (
+      {accent && (
         <div
-          className={cn(
-            "mt-1 text-xs",
-            isGood ? "text-success" : "text-danger"
-          )}
-        >
-          {delta.direction === "up" ? "▲" : "▼"} {delta.value}
-        </div>
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-gradient-to-br from-volt-500/[0.07] to-transparent"
+        />
       )}
+
+      <div className="relative">
+        <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-fg-muted">
+          {label}
+        </div>
+
+        <div className="mt-1.5 font-display text-[34px] font-bold leading-[1.1] tracking-[-0.03em] tabular-nums text-foreground">
+          {value}
+        </div>
+
+        {delta && (
+          <div
+            className={cn(
+              "mt-1.5 flex items-center gap-1 text-xs font-medium",
+              isGood ? "text-success" : "text-danger"
+            )}
+          >
+            <TrendIcon className="size-3" />
+            <span className="tabular-nums">{delta.value}</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
