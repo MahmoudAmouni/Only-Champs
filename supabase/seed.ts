@@ -157,15 +157,18 @@ async function seedCoach() {
 // 2. Clients + subscriptions
 // ---------------------------------------------------------------------------
 
+// joinedDaysAgo staggers subscription start dates across the past ~5
+// months, so the dashboard's revenue chart (Phase 9) has a genuine growth
+// trend to plot instead of everyone joining in the same instant.
 const CLIENTS = [
-  { name: "Sofia Martins", level: 1, atRisk: false },
-  { name: "Daniel Osei", level: 1, atRisk: true },
-  { name: "Priya Nair", level: 2, atRisk: false },
-  { name: "Jordan Blake", level: 2, atRisk: true },
-  { name: "Amara Okafor", level: 2, atRisk: false },
-  { name: "Liam Fischer", level: 3, atRisk: false },
-  { name: "Elena Volkov", level: 3, atRisk: false },
-  { name: "Tyler Brooks", level: 3, atRisk: false },
+  { name: "Sofia Martins", level: 1, atRisk: false, joinedDaysAgo: 150 },
+  { name: "Daniel Osei", level: 1, atRisk: true, joinedDaysAgo: 128 },
+  { name: "Priya Nair", level: 2, atRisk: false, joinedDaysAgo: 111 },
+  { name: "Jordan Blake", level: 2, atRisk: true, joinedDaysAgo: 84 },
+  { name: "Amara Okafor", level: 2, atRisk: false, joinedDaysAgo: 62 },
+  { name: "Liam Fischer", level: 3, atRisk: false, joinedDaysAgo: 47 },
+  { name: "Elena Volkov", level: 3, atRisk: false, joinedDaysAgo: 25 },
+  { name: "Tyler Brooks", level: 3, atRisk: false, joinedDaysAgo: 9 },
 ] as const;
 
 async function seedClients(coachId: string, tiers: { id: string; level: number }[]) {
@@ -182,6 +185,7 @@ async function seedClients(coachId: string, tiers: { id: string; level: number }
       timezone: "America/New_York",
     }).eq("id", id);
 
+    const joinedAt = daysAgo(c.joinedDaysAgo).toISOString();
     const { error } = await admin.from("subscriptions").insert({
       client_id: id,
       coach_id: coachId,
@@ -190,6 +194,7 @@ async function seedClients(coachId: string, tiers: { id: string; level: number }
       stripe_subscription_id: `sub_seed_${id.slice(0, 8)}`,
       stripe_customer_id: `cus_seed_${id.slice(0, 8)}`,
       current_period_end: new Date(Date.now() + 30 * 86400_000).toISOString(),
+      created_at: joinedAt,
     });
     if (error) throw new Error(`subscription for ${c.name}: ${error.message}`);
 
@@ -456,10 +461,15 @@ async function seedCheckIns(coachId: string, clients: { id: string; name: string
         ? Math.max(30, 95 - (11 - week) * 6 + randInt(-5, 5))
         : randInt(75, 98);
 
+      // Historical check-ins need a historical created_at too — otherwise
+      // every row defaults to "now" (insert time), and whichever client is
+      // seeded last ends up owning every slot in a "recent check-ins by
+      // created_at" panel regardless of which week the data represents.
       const { error } = await admin.from("check_ins").insert({
         client_id: client.id,
         coach_id: coachId,
         week_of: weekOf,
+        created_at: daysAgo(week * 7).toISOString(),
         weight_kg: weight,
         sleep_hours: Math.round((randInt(55, 80) / 10) * 10) / 10,
         adherence_pct: adherence,
