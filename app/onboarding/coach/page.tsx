@@ -1,22 +1,28 @@
+import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/queries/auth";
+import { createClient } from "@/lib/supabase/server";
+import { OnboardingWizard } from "@/components/coach/onboarding-wizard";
 
-/**
- * Placeholder — coach signup redirects here. The real four-step wizard
- * (handle, profile, tiers, payments) is Phase 4 work; see
- * docs/04-FRONTEND.md "/onboarding/coach". This just confirms auth landed.
- */
 export default async function CoachOnboardingPage() {
   const user = await requireUser();
+  const supabase = await createClient();
+
+  const { data: coach } = await supabase
+    .from("coaches")
+    .select("*, tiers(*)")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (coach?.is_published) redirect("/dashboard");
 
   return (
-    <div className="mx-auto max-w-lg space-y-2 px-6 py-16 text-center">
-      <h1 className="text-[30px] font-semibold tracking-[-0.02em] text-foreground">
-        Welcome, {user.profile.full_name || user.email}
-      </h1>
-      <p className="text-muted-foreground">
-        The coach onboarding wizard lands in Phase 4 — see
-        docs/05-BUILD-ORDER.md.
-      </p>
+    <div className="mx-auto max-w-lg px-6 py-12">
+      <OnboardingWizard
+        userId={user.id}
+        initialFullName={user.profile.full_name}
+        initialAvatarUrl={user.profile.avatar_url}
+        coach={coach}
+      />
     </div>
   );
 }
