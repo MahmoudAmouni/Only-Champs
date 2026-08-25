@@ -590,6 +590,72 @@ export type Database = {
           },
         ];
       };
+      post_likes: {
+        Row: {
+          post_id: string;
+          client_id: string;
+          created_at: string;
+        };
+        Insert: {
+          post_id: string;
+          client_id: string;
+          created_at?: string;
+        };
+        Update: {
+          post_id?: string;
+          client_id?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "post_likes_post_id_fkey";
+            columns: ["post_id"];
+            isOneToOne: false;
+            referencedRelation: "posts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "post_likes_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      saved_posts: {
+        Row: {
+          post_id: string;
+          client_id: string;
+          created_at: string;
+        };
+        Insert: {
+          post_id: string;
+          client_id: string;
+          created_at?: string;
+        };
+        Update: {
+          post_id?: string;
+          client_id?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "saved_posts_post_id_fkey";
+            columns: ["post_id"];
+            isOneToOne: false;
+            referencedRelation: "posts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "saved_posts_client_id_fkey";
+            columns: ["client_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       post_previews: {
@@ -610,6 +676,21 @@ export type Database = {
             columns: ["coach_id"];
             isOneToOne: false;
             referencedRelation: "coaches";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      post_like_counts: {
+        Row: {
+          post_id: string;
+          like_count: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "post_likes_post_id_fkey";
+            columns: ["post_id"];
+            isOneToOne: false;
+            referencedRelation: "posts";
             referencedColumns: ["id"];
           },
         ];

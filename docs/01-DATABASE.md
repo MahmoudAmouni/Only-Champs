@@ -827,8 +827,14 @@ create policy "coach replies to check-in" on check_ins
 ### messaging
 
 ```sql
+-- Written against the row's own columns, deliberately, rather than calling
+-- can_read_conversation(id). See the warning below.
 create policy "read permitted conversations" on conversations
-  for select using (public.can_read_conversation(id));
+  for select using (
+    coach_id = auth.uid()
+    or (type = 'direct' and client_id = auth.uid())
+    or (type = 'group' and public.tier_level(coach_id) >= min_tier_level)
+  );
 
 create policy "coach creates conversations" on conversations
   for insert with check (auth.uid() = coach_id);
@@ -841,6 +847,27 @@ create policy "send to permitted conversations" on messages
     sender_id = auth.uid() and public.can_read_conversation(conversation_id)
   );
 ```
+
+> **Do not write a SELECT policy as a `SECURITY DEFINER` function that queries
+> the same table it protects.** `can_read_conversation(id)` looks like the
+> obvious way to express this policy, and it is the reason a coach could not
+> start a conversation at all.
+>
+> `insert ... returning id` makes Postgres evaluate the SELECT policy against
+> the row it is inserting. The function answers by running its own
+> `select ... from conversations where id = $1`, which executes under its own
+> snapshot and cannot see a row the calling statement has not finished
+> writing. It returned false for every new row, so RLS refused to return it —
+> reported as `new row violates row-level security policy`, which points at
+> the INSERT policy and is thoroughly misleading. The insert without
+> `returning` succeeded the whole time.
+>
+> Evaluated against the row's own columns the predicate is identical and has
+> no such blind spot. `tier_level()` inside it is fine because it reads
+> `subscriptions`, a different table. `can_read_conversation()` is still
+> correct for the `messages` policies below, which query `conversations` —
+> again, a different table from the one being protected.
+
 
 Note the insert policy checks `sender_id = auth.uid()`. Without it, a user could
 insert a message *as somebody else* into a thread they legitimately belong to.

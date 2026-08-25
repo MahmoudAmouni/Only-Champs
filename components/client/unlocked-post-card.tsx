@@ -1,11 +1,13 @@
 import { Play } from "lucide-react";
 import { TierBadge } from "@/components/shared/tier-badge";
+import { PostActions } from "@/components/client/post-actions";
 
 function formatDuration(seconds: number) {
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
 }
 
 export function UnlockedPostCard({
+  id,
   title,
   body,
   mediaType,
@@ -14,7 +16,11 @@ export function UnlockedPostCard({
   durationSeconds,
   tierLevel,
   publishedAt,
+  likeCount = 0,
+  liked = false,
+  saved = false,
 }: {
+  id: string;
   title: string;
   body: string | null;
   mediaType: "text" | "image" | "video";
@@ -23,6 +29,9 @@ export function UnlockedPostCard({
   durationSeconds: number | null;
   tierLevel: 1 | 2 | 3;
   publishedAt: string | null;
+  likeCount?: number;
+  liked?: boolean;
+  saved?: boolean;
 }) {
   const src = mediaUrl ?? thumbnailUrl;
 
@@ -75,6 +84,13 @@ export function UnlockedPostCard({
         {body && (
           <p className="card-body text-sm leading-relaxed text-fg-secondary">{body}</p>
         )}
+
+        <PostActions
+          postId={id}
+          likeCount={likeCount}
+          liked={liked}
+          saved={saved}
+        />
       </div>
     </article>
   );
