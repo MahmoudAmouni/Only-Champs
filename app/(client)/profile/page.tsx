@@ -2,8 +2,8 @@ import { requireUser } from "@/lib/queries/auth";
 import { createClient } from "@/lib/supabase/server";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { TierBadge } from "@/components/shared/tier-badge";
+import { SubscriptionActions } from "@/components/client/subscription-actions";
 import { EmptyState } from "@/components/shared/empty-state";
 import { CreditCard } from "lucide-react";
 
@@ -17,7 +17,7 @@ export default async function ProfilePage() {
 
   const { data: subscriptions } = await supabase
     .from("subscriptions")
-    .select("id, status, current_period_end, coaches(display_name, handle), tiers(level, name, price_cents)")
+    .select("id, status, current_period_end, coach_id, coaches(display_name, handle), tiers(level, name, price_cents)")
     .eq("client_id", user.id)
     .order("created_at", { ascending: false });
 
@@ -80,16 +80,12 @@ export default async function ProfilePage() {
                 </p>
               )}
 
-              <div className="flex gap-2">
-                <Button size="sm" variant="secondary" disabled>
-                  Change tier
-                </Button>
-                <Button size="sm" variant="ghost" disabled>
-                  Cancel
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Billing management isn&apos;t connected yet.
+              <SubscriptionActions
+                coachId={sub.coach_id}
+                handle={sub.coaches?.handle ?? null}
+              />
+              <p className="text-xs text-fg-muted">
+                Demo mode — no payment is taken and none is required.
               </p>
             </Card>
           ))

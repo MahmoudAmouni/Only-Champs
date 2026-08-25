@@ -5,8 +5,10 @@ import type { Database } from "@/types/database";
  * BYPASSES ROW-LEVEL SECURITY.
  *
  * Permitted callers, and only these:
- *   - app/api/webhooks/stripe/route.ts  (grants access on payment)
- *   - supabase/seed.ts                  (dev/demo data)
+ *   - lib/actions/subscribe.ts  (grants a tier in demo mode — stands in
+ *                                for the Stripe webhook, which this
+ *                                project ships without on purpose)
+ *   - supabase/seed.ts          (dev/demo data)
  *
  * Anywhere else is a bug. If you find yourself importing this to make a
  * query work, an RLS policy is wrong — fix the policy instead. See

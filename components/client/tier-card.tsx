@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { Check } from "lucide-react";
+import { SubscribeButton } from "@/components/client/subscribe-button";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -31,6 +31,7 @@ const GLOW: Record<1 | 2 | 3, string> = {
 };
 
 export function TierCard({
+  id,
   level,
   name,
   priceCents,
@@ -39,7 +40,9 @@ export function TierCard({
   recommended,
   isCurrentTier,
   handle,
+  isSignedIn,
 }: {
+  id: string;
   level: 1 | 2 | 3;
   name: string;
   priceCents: number;
@@ -48,6 +51,7 @@ export function TierCard({
   recommended: boolean;
   isCurrentTier: boolean;
   handle: string;
+  isSignedIn: boolean;
 }) {
   return (
     <div
@@ -125,19 +129,12 @@ export function TierCard({
             Your current tier
           </Button>
         ) : (
-          <Button
-            render={
-              <Link href={`/signup?next=${encodeURIComponent(`/c/${handle}`)}`} />
-            }
-            nativeButton={false}
-            variant={recommended ? "default" : "secondary"}
-            className={cn(
-              "w-full transition-transform duration-200 active:scale-[0.99]",
-              recommended && "glow-volt"
-            )}
-          >
-            Subscribe
-          </Button>
+          <SubscribeButton
+            tierId={id}
+            handle={handle}
+            isSignedIn={isSignedIn}
+            recommended={recommended}
+          />
         )}
       </div>
 

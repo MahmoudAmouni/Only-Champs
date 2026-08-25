@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { ArrowRight, Users } from "lucide-react";
 import { getStorefront } from "@/lib/queries/storefront";
+import { getCurrentUser } from "@/lib/queries/auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,10 @@ export default async function StorefrontPage({
 
   const { coach, tiers, previews, activeClientCount, currentSubscription } =
     storefront;
+
+  // Signed-out visitors get routed through signup first; signed-in ones
+  // subscribe in place.
+  const isSignedIn = !!(await getCurrentUser());
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -131,6 +136,7 @@ export default async function StorefrontPage({
               {tiers.map((tier) => (
                 <TierCard
                   key={tier.id}
+                  id={tier.id}
                   level={tier.level as 1 | 2 | 3}
                   name={tier.name}
                   priceCents={tier.price_cents}
@@ -139,6 +145,7 @@ export default async function StorefrontPage({
                   recommended={tier.level === 2}
                   isCurrentTier={false}
                   handle={coach.handle}
+                  isSignedIn={isSignedIn}
                 />
               ))}
             </div>
