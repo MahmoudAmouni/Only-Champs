@@ -117,7 +117,7 @@ export function LockedOverlay({
             </span>
           )}
         </div>
-        <p className="text-sm font-medium leading-snug text-foreground">
+        <p className="card-title text-sm font-medium leading-snug text-foreground">
           {title}
         </p>
       </div>

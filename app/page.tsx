@@ -16,7 +16,12 @@ import { Button } from "@/components/ui/button";
 import { AmbientBackdrop } from "@/components/marketing/ambient-backdrop";
 import { AppMockup } from "@/components/marketing/app-mockup";
 import { PhoneMockup } from "@/components/marketing/phone-mockup";
-import { Counter, Reveal, TiltCard } from "@/components/marketing/motion";
+import {
+  Counter,
+  MaskReveal,
+  Reveal,
+  TiltCard,
+} from "@/components/marketing/motion";
 
 /**
  * Request a generous source from Unsplash and let next/image do the single
@@ -246,10 +251,12 @@ export default function Home() {
               <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-fg-muted">
                 The pricing ladder
               </p>
+              <MaskReveal>
               <h2 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-[-0.025em] text-foreground sm:text-4xl">
-                One coach. One roster.{" "}
-                <span className="text-gradient-volt">Three levels.</span>
+                <span className="mask-line"><span>One coach. One roster.{" "}
+                <span className="text-gradient-volt">Three levels.</span></span></span>
               </h2>
+            </MaskReveal>
               <p className="mx-auto mt-4 max-w-[52ch] text-base text-fg-secondary">
                 Most tools force a choice: one-to-one software, or a content
                 platform. Running both means running two businesses.
@@ -276,7 +283,7 @@ export default function Home() {
                         /mo
                       </span>
                     </p>
-                    <p className="mt-3 text-sm leading-relaxed text-fg-secondary">
+                    <p className="card-body mt-3 text-sm leading-relaxed text-fg-secondary">
                       {tier.blurb}
                     </p>
                   </div>
@@ -293,9 +300,11 @@ export default function Home() {
               <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-fg-muted">
                 How the gate works
               </p>
+              <MaskReveal>
               <h2 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-[-0.025em] text-foreground sm:text-4xl">
-                Locked content is never sent — not blurred.
+                <span className="mask-line"><span>Locked content is never sent — not blurred.</span></span>
               </h2>
+            </MaskReveal>
               <p className="mt-5 text-base leading-relaxed text-fg-secondary">
                 Every post carries a tier level. Postgres row-level security
                 decides what a given client can read before a single row leaves
@@ -339,9 +348,11 @@ export default function Home() {
               <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-fg-muted">
                 What&apos;s inside
               </p>
+              <MaskReveal>
               <h2 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-[-0.025em] text-foreground sm:text-4xl">
-                Everything the job actually needs.
+                <span className="mask-line"><span>Everything the job actually needs.</span></span>
               </h2>
+            </MaskReveal>
             </Reveal>
 
             <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -362,10 +373,10 @@ export default function Home() {
                       </span>
                     </div>
                     <div className="p-5">
-                      <h3 className="text-base font-semibold tracking-[-0.01em] text-foreground">
+                      <h3 className="card-title text-base font-semibold tracking-[-0.01em] text-foreground">
                         {title}
                       </h3>
-                      <p className="mt-2 text-sm leading-relaxed text-fg-secondary">
+                      <p className="card-body mt-2 text-sm leading-relaxed text-fg-secondary">
                         {body}
                       </p>
                     </div>
@@ -383,9 +394,11 @@ export default function Home() {
               <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-fg-muted">
                 From the field
               </p>
+              <MaskReveal>
               <h2 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-[-0.025em] text-foreground sm:text-4xl">
-                Coaches who stopped trading hours for ceiling.
+                <span className="mask-line"><span>Coaches who stopped trading hours for ceiling.</span></span>
               </h2>
+            </MaskReveal>
             </Reveal>
 
             <div className="mt-12 grid grid-cols-1 gap-5 lg:grid-cols-3">
@@ -393,7 +406,7 @@ export default function Home() {
                 <Reveal key={t.name} delay={i * 110}>
                   <figure className="lift surface-sheen flex h-full flex-col rounded-lg border border-border bg-card p-6 hover:border-border-strong">
                     <Quote className="size-5 shrink-0 text-volt-500/50" />
-                    <blockquote className="mt-4 flex-1 text-sm leading-relaxed text-fg-secondary">
+                    <blockquote className="card-body mt-4 flex-1 text-sm leading-relaxed text-fg-secondary">
                       “{t.quote}”
                     </blockquote>
                     <div className="mt-1 flex gap-0.5 pt-5">
@@ -432,10 +445,12 @@ export default function Home() {
         {/* ---------------------------------------------------------- gallery */}
         <section className="overflow-hidden px-6 py-20">
           <Reveal className="mx-auto mb-10 max-w-2xl text-center">
-            <h2 className="font-display text-3xl font-semibold tracking-[-0.025em] text-foreground">
-              Built for the work that happens{" "}
-              <span className="text-gradient-volt">under the bar</span>
-            </h2>
+            <MaskReveal>
+              <h2 className="font-display text-3xl font-semibold tracking-[-0.025em] text-foreground">
+                <span className="mask-line"><span>Built for the work that happens{" "}
+              <span className="text-gradient-volt">under the bar</span></span></span>
+              </h2>
+            </MaskReveal>
           </Reveal>
 
           <Reveal delay={100}>
@@ -468,10 +483,12 @@ export default function Home() {
         <section className="relative isolate overflow-hidden px-6 py-28">
           <AmbientBackdrop variant="cool" />
           <Reveal className="relative mx-auto max-w-2xl text-center">
-            <h2 className="font-display text-4xl font-bold leading-[1.1] tracking-[-0.03em] text-foreground sm:text-5xl">
-              Start earning from the{" "}
-              <span className="text-gradient-volt">whole audience</span>
-            </h2>
+            <MaskReveal>
+              <h2 className="font-display text-4xl font-bold leading-[1.1] tracking-[-0.03em] text-foreground sm:text-5xl">
+                <span className="mask-line"><span>Start earning from the{" "}
+              <span className="text-gradient-volt">whole audience</span></span></span>
+              </h2>
+            </MaskReveal>
             <p className="mx-auto mt-5 max-w-[48ch] text-lg text-fg-secondary">
               Set up your storefront, pick your tiers, share one link. That&apos;s
               the whole setup.

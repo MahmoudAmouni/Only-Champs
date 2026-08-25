@@ -419,6 +419,55 @@ body {
     mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
   }
 
+  /* ---------------------------------------------------------------- card text
+     Text motion inside cards. Kept to a few px and tied to the parent's
+     hover state — the point is that the card feels responsive, not that
+     the copy visibly moves. Anything larger reads as jitter. */
+
+  .card-title {
+    transition: color 260ms var(--ease-out-expo),
+      transform 320ms var(--ease-out-expo);
+  }
+  .group:hover .card-title {
+    color: var(--oc-volt-500);
+    transform: translate3d(2px, 0, 0);
+  }
+
+  /* Body copy trails the title slightly, so the block reads as one
+     object leaning toward the cursor rather than two separate moves. */
+  .card-body {
+    transition: color 260ms var(--ease-out-expo),
+      transform 320ms var(--ease-out-expo);
+    transition-delay: 30ms;
+  }
+  .group:hover .card-body {
+    color: var(--foreground);
+    transform: translate3d(2px, 0, 0);
+  }
+
+  .card-meta {
+    transition: opacity 260ms var(--ease-out-expo);
+  }
+  .group:hover .card-meta {
+    opacity: 1;
+  }
+
+  /* Line-mask reveal: text slides up from behind its own overflow edge.
+     Applied by MaskReveal, which flips data-shown once in view. */
+  .mask-line {
+    overflow: hidden;
+    display: block;
+  }
+  .mask-line > * {
+    display: block;
+    transform: translate3d(0, 110%, 0);
+    transition: transform 900ms var(--ease-out-expo);
+    will-change: transform;
+  }
+  [data-shown="true"] .mask-line > * {
+    transform: translate3d(0, 0, 0);
+  }
+
   .scrollbar-thin {
     scrollbar-width: thin;
     scrollbar-color: var(--border-strong) transparent;
