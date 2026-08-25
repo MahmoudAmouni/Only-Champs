@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Logo } from "@/components/brand/logo";
 import Image from "next/image";
 import type { Metadata } from "next";
 import { ArrowRight, Search, Users } from "lucide-react";
@@ -79,11 +80,8 @@ export default async function DiscoverPage({
     <div className="flex min-h-screen flex-col bg-background">
       <header className="sticky top-0 z-50 border-b border-border/60 bg-background/70 backdrop-blur-xl">
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6">
-          <Link
-            href="/"
-            className="font-display text-lg font-bold tracking-[-0.02em] text-foreground"
-          >
-            OnlyChamps
+          <Link href="/">
+            <Logo />
           </Link>
           <div className="flex items-center gap-2">
             {user ? (

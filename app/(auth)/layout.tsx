@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Logo } from "@/components/brand/logo";
 import { Lock, LineChart, MessageCircle } from "lucide-react";
 import { AmbientBackdrop } from "@/components/marketing/ambient-backdrop";
 
@@ -20,11 +21,8 @@ export default function AuthLayout({
         <AmbientBackdrop />
 
         <div className="relative p-10">
-          <Link
-            href="/"
-            className="font-display text-lg font-bold tracking-[-0.02em] text-foreground"
-          >
-            OnlyChamps
+          <Link href="/">
+            <Logo />
           </Link>
         </div>
 
@@ -60,11 +58,8 @@ export default function AuthLayout({
       {/* ------------------------------------------------------------- form */}
       <main className="flex flex-1 items-center justify-center px-6 py-12">
         <div className="w-full max-w-[380px]">
-          <Link
-            href="/"
-            className="mb-10 block text-center font-display text-xl font-bold tracking-[-0.02em] text-foreground lg:hidden"
-          >
-            OnlyChamps
+          <Link href="/" className="mb-10 flex justify-center lg:hidden">
+            <Logo />
           </Link>
           <div className="animate-fade-up">{children}</div>
         </div>

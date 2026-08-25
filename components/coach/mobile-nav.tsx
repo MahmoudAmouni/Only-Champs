@@ -1,4 +1,5 @@
 "use client";
+import { Logo } from "@/components/brand/logo";
 
 import { useState } from "react";
 import { Menu } from "lucide-react";
@@ -27,8 +28,8 @@ export function MobileNav() {
       </Button>
       <SheetContent side="left" className="w-64 p-0">
         <SheetHeader className="border-b border-border px-4 py-4">
-          <SheetTitle className="font-display text-lg font-bold tracking-[-0.01em]">
-            OnlyChamps
+          <SheetTitle>
+            <Logo />
           </SheetTitle>
         </SheetHeader>
         <div className="py-2">
