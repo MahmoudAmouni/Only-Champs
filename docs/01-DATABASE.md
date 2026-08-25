@@ -357,7 +357,7 @@ receiving its body. A view exposes only safe columns:
 
 ```sql
 create view post_previews
-with (security_invoker = on) as
+with (security_invoker = false) as
 select
   p.id,
   p.coach_id,
@@ -375,9 +375,27 @@ where p.published_at is not null;
 Note what is absent: `body` and `media_path`. Even a total compromise of this view
 leaks a title and a thumbnail.
 
-> `security_invoker = on` is essential. Without it the view runs as its **owner**, and
-> the underlying `posts` policies are skipped entirely — every post becomes readable
-> by everyone. This flag requires Postgres 15+, which Supabase provides.
+> **`security_invoker = false` is essential, and easy to get backwards.** The
+> instinct is to reach for `security_invoker = true` — "the caller's own
+> permissions, principle of least privilege" — and that instinct is wrong here. With
+> `security_invoker = true`, the view's query against `posts` still runs subject to
+> the *base table's* RLS policy, which filters to only rows the caller already has
+> `has_tier()` access to. That makes the view completely redundant with `posts`
+> itself: a level-1 client would see precisely their 4 unlocked posts and **nothing
+> from the 8 higher-tier posts that are supposed to entice them to upgrade** — the
+> entire reason this view exists. It doesn't fail loudly; every query still returns
+> a valid, smaller-than-expected result set, which is exactly the kind of bug that
+> passes a cursory glance and only surfaces when someone actually compares row
+> counts across accounts.
+>
+> `security_invoker = false` (the default prior to explicitly setting it, but worth
+> being explicit about) runs the view as its **owner**, bypassing the `posts` RLS
+> policy entirely for this query — which is correct and safe *specifically because*
+> the view's own column list already excludes `body` and `media_path`. There is
+> nothing sensitive left for a bypassed policy to leak. `is_unlocked` still reflects
+> each caller's real entitlement correctly regardless of this setting, because
+> `tier_level()` reads `auth.uid()`, a session-level value unaffected by which
+> privileges the *view* runs under.
 
 The preview view intentionally has *no* tier filter, because it is safe for a client to
 know a locked post exists. The `posts` table itself is filtered strictly.

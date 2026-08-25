@@ -27,7 +27,7 @@ create trigger t_posts_updated before update on posts
 
 
 create view post_previews
-with (security_invoker = on) as
+with (security_invoker = false) as
 select
   p.id,
   p.coach_id,
