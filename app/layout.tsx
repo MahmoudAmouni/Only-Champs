@@ -34,7 +34,23 @@ export default function RootLayout({
       // Ship the light theme, but always default to dark.
       className={`dark ${inter.variable} ${interTight.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      {/*
+        suppressHydrationWarning is here for browser extensions, not for our
+        own markup. Grammarly (and password managers, and translation
+        extensions) inject attributes onto <body> — data-gr-ext-installed,
+        data-new-gr-c-s-check-loaded — before React hydrates, so the DOM no
+        longer matches the HTML the server sent and React logs a mismatch on
+        every page load. The server output is clean; there is nothing to fix
+        on our side, and no way to stop an extension writing to the document.
+
+        This is narrower than it looks: the flag applies one level deep, to
+        this element's own attributes and text only. Every child still gets
+        the normal hydration check, so a genuine mismatch inside the app is
+        still reported.
+      */}
+      <body suppressHydrationWarning className="min-h-full flex flex-col">
+        {children}
+      </body>
     </html>
   );
 }
