@@ -57,7 +57,7 @@ export default async function FeedPage({
           description={`${activeCoach.name} hasn't published anything yet.`}
         />
       ) : (
-        <div className="stagger grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <div className="stagger grid grid-cols-1 items-start gap-4 xl:grid-cols-2">
           {posts.map((post) =>
             post.full ? (
               <UnlockedPostCard

@@ -1,194 +1,218 @@
-# OnlyChamps
+<div align="center">
 
-**A subscription platform for online fitness coaches.**
+<img src="docs/banner.svg" alt="OnlyChamps" width="100%">
 
-Sell tiered memberships, deliver programs and video content, and coach clients
-directly — from one place.
+<br>
 
-> **Status:** in active development. Architecture and product scope are defined;
-> implementation is underway.
+![Next.js](https://img.shields.io/badge/Next.js_16-000000?style=for-the-badge&logo=next.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![React](https://img.shields.io/badge/React_19-087EA4?style=for-the-badge&logo=react&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/Postgres_RLS-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![Tailwind](https://img.shields.io/badge/Tailwind_v4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
+
+**Sell tiered memberships · Deliver programs and video · Coach clients directly**
+
+</div>
 
 ---
 
-## The problem
+<div align="center">
+<img src="docs/screenshots/coach-dashboard.png" alt="Coach dashboard" width="90%">
+</div>
 
-Online coaching is a real business that runs on duct tape. A typical coach juggles
-Instagram for audience, WhatsApp for client communication, Google Sheets for
-programming, and bank transfers for payment — with a Notes app tracking who paid and
-who's gone quiet.
+---
 
-Two things break as a result:
+## The idea
 
-**Income caps out.** One-to-one coaching stops scaling at roughly 25 clients, because
-the coach runs out of hours. Meanwhile they have thousands of followers who would pay
-$15/month for something lighter, and no way to serve them.
+One coach. Three levels of access. Same platform.
 
-**Clients churn silently.** Nothing tells the coach that a client hasn't logged a
-workout in nine days until the cancellation comes through.
+| | Tier | Typical price | What it unlocks |
+|:--:|---|---|---|
+| 🔘 | **Content** | $12–25/mo | Video library, weekly drops, community feed |
+| 🔵 | **Group** | $39–79/mo | Everything above **+ group chat**, shared block |
+| 🟢 | **1:1** | $149–299/mo | Everything above **+ direct chat**, custom programming |
 
-Existing tools force a choice. Coaching software handles 1:1 but ignores audience.
-Content platforms handle audience but can't do real coaching. Neither does both.
+> Coaching stops scaling at ~25 clients. The other 10,000 followers would pay $15/month for something lighter — and there's nowhere to put them.
 
-## The product
+---
 
-Each coach gets a branded storefront with a **pricing ladder** — same coach, one
-platform, three levels of access:
+## The engineering bit
 
-| Tier | Price | Includes |
+**The tier gate lives in Postgres, not in React.**
+
+```sql
+create policy "read entitled posts" on posts
+  for select using (
+    published_at is not null
+    and public.has_tier(coach_id, min_tier_level)
+  );
+```
+
+A locked post's body **never leaves the database**. Not hidden with CSS, not filtered in the client — it is never sent.
+
+```mermaid
+flowchart LR
+    A[Client requests feed] --> B{Postgres RLS}
+    B -->|tier >= min_tier_level| C[Full row: title + body + media]
+    B -->|tier &lt; min_tier_level| D[post_previews view<br/>title + thumbnail only]
+    C --> E[Rendered post]
+    D --> F[Locked overlay + upgrade price]
+```
+
+| Concern | Where it's solved |
+|---|---|
+| Who can read a post | `posts` RLS policy |
+| Showing that locked content exists | `post_previews` view, `security_invoker = false` |
+| Who can message whom | `conversations` RLS, evaluated on row columns |
+| Public social proof without leaking rows | `coach_stats` aggregate view |
+| Granting a tier | Service role only — clients have **no** INSERT policy |
+
+---
+
+## Screens
+
+### Coach
+
+| Clients | Content |
+|---|---|
+| <img src="docs/screenshots/coach-clients.png" width="100%"> | <img src="docs/screenshots/coach-content.png" width="100%"> |
+| Roster with MRR, adherence, last-active and at-risk flags | Tier-gated publishing with live subscriber counts |
+
+| Programs | Settings |
+|---|---|
+| <img src="docs/screenshots/coach-programs.png" width="100%"> | <img src="docs/screenshots/coach-settings.png" width="100%"> |
+| Reusable templates and per-client assignments | Pricing ladder with a live storefront preview |
+
+### Client
+
+| Feed | Today |
+|---|---|
+| <img src="docs/screenshots/client-feed.png" width="100%"> | <img src="docs/screenshots/client-today.png" width="100%"> |
+| Unlocked and locked posts side by side, likes and saves | Set-by-set logging, prefilled from last session |
+
+| Progress | Profile |
+|---|---|
+| <img src="docs/screenshots/client-progress.png" width="100%"> | <img src="docs/screenshots/client-profile.png" width="100%"> |
+| Weight trend, photo timeline, weekly check-ins | Memberships, saved posts, training stats |
+
+### Public
+
+| Landing | Discover | Storefront |
 |---|---|---|
-| **Content** | $10–20/mo | Video library, weekly program drops, community feed |
-| **Group** | $40–80/mo | Above, plus group chat and a shared check-in cadence |
-| **1:1** | $150–400/mo | Above, plus custom programming and direct chat |
+| <img src="docs/screenshots/landing.png" width="100%"> | <img src="docs/screenshots/discover.png" width="100%"> | <img src="docs/screenshots/storefront.png" width="100%"> |
 
-Clients subscribe, land in the app, and see exactly the level of access they paid for.
-Coaches monetize their whole audience instead of only the people who fit in a calendar.
+### Responsive
 
-## Features
+<div align="center">
+<img src="docs/screenshots/client-feed-mobile.png" alt="Mobile feed" width="300">
+</div>
 
-**Coach**
-- Client roster with revenue, retention, and at-risk flags
-- Drag-and-drop program builder over a shared exercise library
-- Structured weekly check-ins — weight, photos, sleep, adherence — in one view
-- Direct and group chat
-- Tier-gated content publishing
-
-**Client**
-- Today's workout, with video demos and set-by-set logging
-- Progress charts and photo timeline
-- Direct line to their coach
-- A clear upgrade path to more access
-
-## Architecture notes
-
-The core engineering problem is **access control**. Every post, message thread, and
-program belongs to exactly one tier, and a client must see only what they have paid
-for. That invariant is enforced at the database layer with Postgres row-level
-security rather than scattered across application code — a tier check that lives in
-the UI is a data leak waiting to happen.
-
-Built around that: realtime chat, Stripe Connect for multi-party payments and payouts,
-signed-URL video delivery, and an analytics layer for the coach dashboard.
+---
 
 ## Stack
 
-| Layer | Choice |
-|---|---|
-| Framework | Next.js (App Router) + TypeScript |
-| UI | Tailwind CSS + shadcn/ui |
-| Database / Auth | Supabase (Postgres, RLS, Realtime, Storage) |
-| Payments | Stripe Connect + Stripe Billing |
-| Charts | Recharts |
-| Hosting | Vercel |
-
-## Roadmap
-
-- [ ] Schema + row-level security policies for tier gating
-- [ ] Seed data
-- [ ] Auth and coach onboarding
-- [ ] Coach storefront with tiered checkout
-- [ ] Tier-gated content feed
-- [ ] Realtime coach ↔ client chat
-- [ ] Program builder and client workout logging
-- [ ] Coach analytics dashboard
-
-## Documentation
-
-The full implementation plan lives in [`docs/`](docs/). Read in order.
-
-| Doc | Covers |
-|---|---|
-| [00 — Architecture](docs/00-ARCHITECTURE.md) | How the pieces fit, request lifecycles, repo layout, env vars |
-| [01 — Database](docs/01-DATABASE.md) | Every table and policy as runnable SQL, including the tier-gating model |
-| [02 — Backend](docs/02-BACKEND.md) | Auth, server actions, Stripe Connect, webhooks, storage, realtime |
-| [03 — Design System](docs/03-DESIGN-SYSTEM.md) | Colour, type, spacing, motion, and every component spec |
-| [04 — Frontend](docs/04-FRONTEND.md) | Every screen, its data, and all of its states |
-| [05 — Build Order](docs/05-BUILD-ORDER.md) | The ordered task list, phase by phase |
-
-## Local development
-
-```bash
-npm install
-cp .env.example .env.local   # fill in your Supabase project's keys
-npm run db:migrate           # applies supabase/migrations/*.sql
-npx tsx supabase/seed.ts     # populates the demo data described below
-npm run dev
-```
-
-## Demo data
-
-The seed builds a working marketplace rather than a handful of test rows:
-**6 coaches**, each with their own pricing ladder, content library and client
-roster, and **27 clients** with assigned programs, months of logged workouts,
-12 weeks of check-ins and real conversations. Every client has training
-history, so no screen in the app renders empty.
-
-Every account uses the password `OnlyChamps2026!`. The sign-in page has
-**Coach** and **Client** buttons that fill the form for you, so there is
-nothing to type.
-
-| Sign in as | Email | What it shows |
-| --- | --- | --- |
-| Coach | `marcus.chen@onlychamps.demo` | The fullest roster — 8 clients, $962 MRR, 2 flagged at risk |
-| Client | `sofia.martins@onlychamps.demo` | Three memberships at levels 3/2/1 — full access and direct chat with one coach, group chat with another, a locked feed with the third |
-| Client, level 2 | `priya.nair@onlychamps.demo` | Group chat and the shared group block |
-| Client, level 1 | `daniel.osei@onlychamps.demo` | Mostly locked feed, and flagged at risk on the coach's dashboard |
-
-The other five coaches are `nadia.rahman@`, `theo.almeida@`, `kaia.lindqvist@`,
-`andre.wallace@` and `yuki.tanaka@onlychamps.demo`. Browse all of them at
-`/discover`, or visit a storefront directly at `/c/marcus`, `/c/nadia`,
-`/c/theo`, `/c/kaia`, `/c/dre`, `/c/yuki` — no account needed.
-
-> **This build has no payment processor.** Subscribing grants the tier
-> immediately and free, which means anyone can give themselves any tier. That
-> is deliberate for a demo (see `docs/05-BUILD-ORDER.md` Phase 6) and is the
-> reason this app must never be pointed at real customer data.
-
-
-## Deploying
-
-Everything below runs on free tiers — Vercel Hobby for the app, Supabase Free
-for the database. There is no payment processor to configure (see
-`docs/05-BUILD-ORDER.md` Phase 6).
-
-**1. Import the repo on Vercel.** New Project → import this repository. The
-framework is detected automatically; there is no build configuration to write.
-
-**2. Set the environment variables** (Project Settings → Environment
-Variables), from Supabase → Project Settings → API:
-
-| Variable | Value |
-| --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | Project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | The `anon` / publishable key |
-| `SUPABASE_SERVICE_ROLE_KEY` | The `service_role` / secret key |
-
-`NEXT_PUBLIC_APP_URL` is optional on Vercel — `lib/site-url.ts` falls back to
-the project's production domain. Set it only for a custom domain.
-
-`DATABASE_URL` is **not** needed by the deployed app. It is only used by the
-migration runner and the seed, both of which run from your machine.
-
-**3. Point Supabase at the deployed URL.** Authentication → URL Configuration:
-set Site URL to `https://<your-project>.vercel.app` and add
-`https://<your-project>.vercel.app/auth/callback` to Redirect URLs. Skip this
-and sign-up confirmation links will send people to localhost.
-
-**4. Deploy**, then run the migrations and seed against the production
-database from your machine — `npm run db:migrate` and
-`npx tsx supabase/seed.ts` with `.env.local` pointing at that project.
-
-### The free-tier catch worth knowing
-
-**A Supabase free project pauses after 7 days without activity.** For a
-portfolio link that is the failure mode that matters: someone opens it three
-weeks after you post it and the app cannot reach its database. Unpausing is
-one click in the Supabase dashboard, but you have to know it happened. Either
-check before you share the link, or keep the project warm with a scheduled
-request.
-
-Vercel Hobby does not sleep, so the site itself stays up either way — which
-is worse, because it looks live while every query fails.
+| Layer | Choice | Why |
+|---|---|---|
+| **Framework** | Next.js 16, App Router | Server Components + Server Actions, no API layer |
+| **Language** | TypeScript | Schema types generated from Postgres |
+| **UI** | Tailwind v4 + shadcn/ui (Base UI) | CSS-first tokens, no config file |
+| **Database** | Supabase Postgres | RLS is the product's core mechanism |
+| **Auth** | Supabase Auth | Email + Google OAuth |
+| **Realtime** | Supabase Realtime | Live chat over Postgres replication |
+| **Storage** | Supabase Storage | Signed URLs on play, never public |
+| **Charts** | Recharts | Dashboard and progress |
+| **Hosting** | Vercel | Free tier, zero config |
 
 ---
 
-Built by [Mahmoud Abou Amoun](https://github.com/MahmoudAmouni).
+## Try it
+
+Every account uses the password `OnlyChamps2026!` — the sign-in page has **Coach** and **Client** buttons that fill the form for you.
+
+| Role | Email | What you'll see |
+|---|---|---|
+| 🏋️ **Coach** | `marcus.chen@onlychamps.demo` | 8 clients, $1,192 MRR, 2 flagged at risk |
+| 🥇 **Client** | `sofia.martins@onlychamps.demo` | 3 memberships at levels 3/2/1 — the whole ladder |
+| 🥈 Client | `priya.nair@onlychamps.demo` | Group chat, shared block |
+| 🥉 Client | `daniel.osei@onlychamps.demo` | Mostly locked feed |
+
+<div align="center">
+<img src="docs/screenshots/login.png" alt="Sign in with demo accounts" width="70%">
+</div>
+
+---
+
+## Demo data
+
+Not three rows of `Test User 1`.
+
+| | Seeded |
+|---|:--:|
+| Coaches, each with their own ladder | **6** |
+| Clients with real training history | **27** |
+| Posts across all tiers | **76** |
+| Workout + set logs | **362 / 5,875** |
+| Check-ins with photos | **324** |
+| Messages across 16 threads | **659** |
+
+```bash
+npx tsx supabase/seed.ts
+```
+
+---
+
+## Run it
+
+```bash
+npm install
+cp .env.example .env.local    # add your Supabase keys
+npm run db:migrate            # apply supabase/migrations/*.sql
+npx tsx supabase/seed.ts      # populate demo data
+npm run dev
+```
+
+| Script | Does |
+|---|---|
+| `npm run dev` | Dev server |
+| `npm run db:migrate` | Applies migrations over `DATABASE_URL` |
+| `npx tsx supabase/seed.ts` | Seeds the demo marketplace |
+| `node scripts/screenshots.mjs` | Regenerates the screenshots above |
+
+---
+
+## Deploy free
+
+| Step | Where |
+|---|---|
+| 1. Import repo | Vercel → New Project |
+| 2. Set 3 env vars | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` |
+| 3. Set Site URL + `/auth/callback` | Supabase → Auth → URL Configuration |
+| 4. Deploy | — |
+
+> ⚠️ **Supabase free projects pause after 7 days idle.** Vercel keeps serving, so the site looks live while every query fails. Check before sharing the link.
+
+---
+
+## Docs
+
+| Doc | Covers |
+|---|---|
+| [00 — Architecture](docs/00-ARCHITECTURE.md) | Request lifecycles, repo layout, execution contexts |
+| [01 — Database](docs/01-DATABASE.md) | Every table and policy as runnable SQL |
+| [02 — Backend](docs/02-BACKEND.md) | Auth, server actions, realtime, seed spec |
+| [03 — Design System](docs/03-DESIGN-SYSTEM.md) | Colour, type, spacing, motion, components |
+| [04 — Frontend](docs/04-FRONTEND.md) | Every screen, its data, and all its states |
+| [05 — Build Order](docs/05-BUILD-ORDER.md) | Phased task list and definition of done |
+
+---
+
+<div align="center">
+
+**No payment processor.** Subscribing grants the tier instantly and free — deliberate for a demo, and the reason this must never hold real customer data.
+
+<br>
+
+Built by [Mahmoud Abou Amoun](https://github.com/MahmoudAmouni)
+
+</div>

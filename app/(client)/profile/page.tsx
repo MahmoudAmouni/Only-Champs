@@ -120,7 +120,7 @@ export default async function ProfilePage() {
               }
             />
           ) : (
-            <div className="grid gap-3 lg:grid-cols-2">
+            <div className="grid items-start gap-3 lg:grid-cols-2">
               {subs.map((sub) => (
                 <Card key={sub.id} className="space-y-4 p-5">
                   <div className="flex items-start justify-between gap-3">
@@ -192,7 +192,7 @@ export default async function ProfilePage() {
               description="Tap Save on any post in your feed to keep it here."
             />
           ) : (
-            <div className="grid gap-3 lg:grid-cols-2">
+            <div className="grid items-start gap-3 lg:grid-cols-2">
               {saved.map((row) =>
                 row.posts ? (
                   <Card key={row.post_id} className="flex gap-4 overflow-hidden p-4">
