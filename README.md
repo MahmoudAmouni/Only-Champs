@@ -13,6 +13,12 @@
 
 **Sell tiered memberships · Deliver programs and video · Coach clients directly**
 
+<br>
+
+### [**▶ Open the live demo**](https://only-champs.vercel.app)
+
+One click signs you in as a coach or a client. No signup.
+
 </div>
 
 ---
@@ -130,6 +136,8 @@ flowchart LR
 
 Every account uses the password `OnlyChamps2026!` — the sign-in page has **Coach** and **Client** buttons that fill the form for you.
 
+**[only-champs.vercel.app](https://only-champs.vercel.app)**
+
 | Role | Email | What you'll see |
 |---|---|---|
 | 🏋️ **Coach** | `marcus.chen@onlychamps.demo` | 8 clients, $1,192 MRR, 2 flagged at risk |
@@ -189,6 +197,13 @@ npm run dev
 | 2. Set 3 env vars | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` |
 | 3. Set Site URL + `/auth/callback` | Supabase → Auth → URL Configuration |
 | 4. Deploy | — |
+
+> **`NEXT_PUBLIC_*` variables must not be marked Sensitive.** Vercel hides
+> sensitive values from the build step, and Next.js inlines `NEXT_PUBLIC_`
+> values at build time — so they arrive as `undefined` and every page 500s
+> with "Your project's URL and Key are required". The anon key is meant to be
+> public anyway; RLS is what protects the data. Add them with
+> `vercel env add NAME production --no-sensitive`.
 
 > ⚠️ **Supabase free projects pause after 7 days idle.** Vercel keeps serving, so the site looks live while every query fails. Check before sharing the link.
 
